@@ -61,6 +61,8 @@ void TIMER0_IRQHandler(void);
 
 void TIMER1_IRQHandler(void);
 
+void TIMER2_IRQHandler(void);
+
 
 int main(void)
 {
@@ -70,15 +72,9 @@ int main(void)
   
 
    gpiote_init();
-    while(1)
-  {
-    __NOP();
-    __SEV();
-    __WFE();
-    __WFE();
-  }
    timerVib_init();
    timerSPI_init();
+   timerADC_init();
    NRF_POWER->DCDCEN=POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
    NRF_POWER->TASKS_LOWPWR=1;
    
@@ -149,8 +145,8 @@ void GPIOTE_IRQHandler(void)
 {
   if (pulse_count == 0)
   {
-    NVIC_EnableIRQ(TIMER0_IRQn);
-    NRF_TIMER0->TASKS_START=1;
+    NVIC_EnableIRQ(TIMER2_IRQn);
+    NRF_TIMER2->TASKS_START=1;
     pulse_count += INC;
   }
   else if (pulse_count < MAX-INC)
@@ -163,14 +159,14 @@ void GPIOTE_IRQHandler(void)
   
 }
 
-void TIMER0_IRQHandler(void)
+void TIMER2_IRQHandler(void)
 {
   nrf_gpio_pin_toggle(LED);
   
   NVIC_EnableIRQ(GPIOTE_IRQn);
   if (pulse_count  <= DEC)
   {
-      NVIC_DisableIRQ(TIMER0_IRQn);
+      NVIC_DisableIRQ(TIMER2_IRQn);
 //     NRF_TIMER0->TASKS_CLEAR = 1;
       pulse_count = 0; 
   }
@@ -193,16 +189,15 @@ void TIMER0_IRQHandler(void)
     nrf_gpio_pin_clear(LED2);
     start = 0;
   }
-  if((NRF_TIMER0->EVENTS_COMPARE[0]==1) && (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
+  if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
   {
-    NRF_TIMER0->EVENTS_COMPARE[0]=0;
+    NRF_TIMER2->EVENTS_COMPARE[0]=0;
     //NRF_TIMER0->TASKS_START=1;
   }
 }
 
 void TIMER1_IRQHandler(void)
 {
- 
   read_ac_value(&x_acc_samples[sample_count],&y_acc_samples[sample_count],&z_acc_samples[sample_count]);
   sample_count += 1;
   
@@ -210,5 +205,39 @@ void TIMER1_IRQHandler(void)
   {
     NRF_TIMER1->EVENTS_COMPARE[0]=0;
     //NRF_TIMER0->TASKS_START=1;
+  }
+}
+
+void TIMER0_IRQHandler(void)
+{
+  static uint8_t adc_value;
+  static bool LED_on = 0;
+  adc_value = start_sampling();
+  
+  if(adc_value < 0xD5) // 3,50 V
+  {
+    NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 1 hour to 10 s
+    if(!LED_on)
+    {
+      //nrf_gpio_pin_set(LED);
+      NRF_TIMER0->CC[1] = 0x00C3; // timer is set from 10 s to 100 ms
+      LED_on = 1;
+    }
+    else
+    {
+      //nrf_gpio_pin_clear(LED);
+      NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 100 ms to 10 s
+      LED_on = 0;
+    }
+  }
+  else
+  {
+    NRF_TIMER0->CC[1] = 0x006B49D1;   // timer is set to 1 hour
+  }
+  
+   if((NRF_TIMER0->EVENTS_COMPARE[1] == 1) && (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE1_Msk))
+  {
+    NRF_TIMER0->EVENTS_COMPARE[1] = 0;
+    NRF_TIMER0->TASKS_START = 1;
   }
 }
