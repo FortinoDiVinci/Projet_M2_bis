@@ -28,6 +28,7 @@
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
 #include "nrf_gpiote.h"
+#include "adc.h"
    
 #include "initialization.h"
 #include "spi_master.h"
@@ -38,12 +39,12 @@
 #define MAX_LENGTH_SAMPLE 10
 #define INC 4
 #define DEC 1
-#define THRESH 25
+#define THRESH 10
 #define MAX 150
 #define SIZE_PACKET 15
 
 
-uint8_t pulse_count = 0, sample_count = 1;
+uint8_t sample_count = 1;
 uint8_t start = 0;
 
 static int16_t x_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration x samples*/
@@ -69,10 +70,8 @@ int main(void)
 /** GPIOTE interrupt handler.
 * Triggered on motion interrupt pin input low-to-high transition.
 */
-  
-
+ 
    gpiote_init();
-   timerVib_init();
    timerSPI_init();
    timerADC_init();
    NRF_POWER->DCDCEN=POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
@@ -80,8 +79,7 @@ int main(void)
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
   NVIC_EnableIRQ(GPIOTE_IRQn);
-  
-
+ 
 //    NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
   
   //SPI0  
@@ -97,6 +95,8 @@ int main(void)
         NVIC_EnableIRQ(TIMER1_IRQn);
         while(start == 1)
         {
+//          __WFE();
+//          __WFE();
           __WFI();
           if(sample_count == MAX_LENGTH_SAMPLE)
           {
@@ -132,6 +132,8 @@ int main(void)
       {
         NVIC_DisableIRQ(TIMER1_IRQn);
         __WFI();
+//        __WFE();
+//        __WFE();
 //        NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
       }
     }
@@ -143,63 +145,43 @@ int main(void)
 
 void GPIOTE_IRQHandler(void)
 {
-  if (pulse_count == 0)
-  {
-    NVIC_EnableIRQ(TIMER2_IRQn);
-    NRF_TIMER2->TASKS_START=1;
-    pulse_count += INC;
-  }
-  else if (pulse_count < MAX-INC)
-  {
-    pulse_count += INC;
-  }
+  nrf_gpio_pin_toggle(LED2);
+  start =1;
+
   // Event causing the interrupt must be cleared
-  NRF_GPIOTE->EVENTS_IN[0] = 0;
+  NRF_GPIOTE->EVENTS_PORT = 0;
   NVIC_DisableIRQ(GPIOTE_IRQn);
   
 }
 
-void TIMER2_IRQHandler(void)
-{
-  nrf_gpio_pin_toggle(LED);
-  
-  NVIC_EnableIRQ(GPIOTE_IRQn);
-  if (pulse_count  <= DEC)
-  {
-      NVIC_DisableIRQ(TIMER2_IRQn);
-//     NRF_TIMER0->TASKS_CLEAR = 1;
-      pulse_count = 0; 
-  }
-  else if (pulse_count > DEC)
-  {
-    pulse_count -= DEC;
-  }
-  if(pulse_count > THRESH)
-  {
-    nrf_gpio_pin_set(LED2);
-    start =1;
-  }
-//  else if(pulse_count==0)
-//  {
-//    nrf_gpio_pin_set(DEBEUG_PIN);
-//    NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
-//  }
-  else 
-  {
-    nrf_gpio_pin_clear(LED2);
-    start = 0;
-  }
-  if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
-  {
-    NRF_TIMER2->EVENTS_COMPARE[0]=0;
-    //NRF_TIMER0->TASKS_START=1;
-  }
-}
+
 
 void TIMER1_IRQHandler(void)
 {
-  read_ac_value(&x_acc_samples[sample_count],&y_acc_samples[sample_count],&z_acc_samples[sample_count]);
-  sample_count += 1;
+  static uint8_t sleep_count=0;
+  if ((NRF_GPIO->IN&0x00000040)==(0x00000040))
+  {
+      sleep_count ++; 
+  }
+  else
+  {
+    sleep_count = 0;
+  }
+  if(sleep_count >= THRESH)
+  {
+    sleep_count=0;
+    nrf_gpio_pin_clear(LED);
+    start = 0;
+    NRF_GPIOTE->EVENTS_PORT = 0;
+    NVIC_EnableIRQ(GPIOTE_IRQn);
+    NVIC_DisableIRQ(TIMER1_IRQn);
+  }
+  else
+  {
+    nrf_gpio_pin_set(LED);
+    read_ac_value(&x_acc_samples[sample_count],&y_acc_samples[sample_count],&z_acc_samples[sample_count]);
+    sample_count += 1;
+  }
   
   if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
   {
@@ -214,18 +196,18 @@ void TIMER0_IRQHandler(void)
   static bool LED_on = 0;
   adc_value = start_sampling();
   
-  if(adc_value < 0xD5) // 3,50 V
+  if(adc_value < 0xCF)//D5) // 3,50 V
   {
     NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 1 hour to 10 s
     if(!LED_on)
     {
-      //nrf_gpio_pin_set(LED);
+      nrf_gpio_pin_set(DEBEUG_PIN);
       NRF_TIMER0->CC[1] = 0x00C3; // timer is set from 10 s to 100 ms
       LED_on = 1;
     }
     else
     {
-      //nrf_gpio_pin_clear(LED);
+      nrf_gpio_pin_clear(DEBEUG_PIN);
       NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 100 ms to 10 s
       LED_on = 0;
     }
@@ -239,5 +221,16 @@ void TIMER0_IRQHandler(void)
   {
     NRF_TIMER0->EVENTS_COMPARE[1] = 0;
     NRF_TIMER0->TASKS_START = 1;
+  }
+}
+
+void TIMER2_IRQHandler(void)
+{
+  
+ 
+  if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
+  {
+    NRF_TIMER2->EVENTS_COMPARE[0]=0;
+    //NRF_TIMER0->TASKS_START=1;
   }
 }

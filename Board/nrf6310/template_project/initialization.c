@@ -6,7 +6,8 @@
 #include "nrf_delay.h"
 #include "nrf_gpiote.h"
 #include "nrf_gpio.h"
-#include <initialization.h>
+#include "initialization.h"
+#include "adc.h"
 
 
 
@@ -18,26 +19,34 @@
 //  nrf_gpio_cfg_input(6,NRF_GPIO_PIN_NOPULL);
   // Configure GPIOTE channel BUUTTON to generate event when MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
 
-  NRF_GPIO->PIN_CNF[6]=(GPIO_PIN_CNF_SENSE_Low << GPIO_PIN_CNF_SENSE_Pos)
+  NRF_GPIO->PIN_CNF[6]=(GPIO_PIN_CNF_SENSE_Low<< GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
                                         | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
   
-  nrf_gpiote_event_config(0, 6, NRF_GPIOTE_POLARITY_LOTOHI);
+  //nrf_gpiote_event_config(0, 6, NRF_GPIOTE_POLARITY_LOTOHI);
 
 
   // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
-  NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Enabled<<GPIOTE_INTENSET_IN0_Pos;
-                                        
+  NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Enabled<<GPIOTE_INTENSET_PORT_Pos;
+  //NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Enabled<<GPIOTE_INTENSET_IN0_Pos;
+  
+  nrf_gpio_cfg_output(DEBEUG_PIN);
+  nrf_gpio_pin_clear(DEBEUG_PIN);                                    
   nrf_gpio_cfg_output(LED2);
   nrf_gpio_pin_clear(LED2);
+  nrf_gpio_cfg_output(PIN_ADC_ON);
+  nrf_gpio_pin_clear(PIN_ADC_ON);
+  nrf_gpio_cfg_output(LED);
+  nrf_gpio_pin_clear(LED);
+  nrf_gpio_cfg_output(PIN_BUCK);
+  nrf_gpio_pin_clear(PIN_BUCK); // we will change it when the consuption will be ok
+
   nrf_gpio_cfg_output(1);
-  nrf_gpio_cfg_output(2);
   nrf_gpio_cfg_output(3);
   nrf_gpio_cfg_output(4);
   nrf_gpio_cfg_output(5);
-  nrf_gpio_cfg_output(6);
   nrf_gpio_cfg_output(7);
   nrf_gpio_cfg_output(12);
   nrf_gpio_cfg_output(13);
@@ -49,7 +58,7 @@
   nrf_gpio_cfg_output(21);
   nrf_gpio_cfg_output(22);
   nrf_gpio_cfg_output(23);
-  nrf_gpio_cfg_output(24);
+  //nrf_gpio_cfg_output(24);
   nrf_gpio_cfg_output(25);
   nrf_gpio_cfg_output(26);
   nrf_gpio_cfg_output(27);
@@ -57,11 +66,9 @@
   nrf_gpio_cfg_output(29);
   nrf_gpio_cfg_output(30);
   nrf_gpio_pin_clear(1);
-  nrf_gpio_pin_clear(2);
   nrf_gpio_pin_clear(3);
   nrf_gpio_pin_clear(4);
   nrf_gpio_pin_clear(5);
-  nrf_gpio_pin_clear(6);
   nrf_gpio_pin_clear(7);
   nrf_gpio_pin_clear(12);
   nrf_gpio_pin_clear(13);
@@ -73,20 +80,17 @@
   nrf_gpio_pin_clear(21);
   nrf_gpio_pin_clear(22);
   nrf_gpio_pin_clear(23);
-  nrf_gpio_pin_clear(24);
+  //nrf_gpio_pin_clear(24);
   nrf_gpio_pin_clear(25);
   nrf_gpio_pin_clear(26);
   nrf_gpio_pin_clear(27);
   nrf_gpio_pin_clear(28);
   nrf_gpio_pin_clear(29);
   nrf_gpio_pin_clear(30);
-  nrf_gpio_cfg_output(LED);
-  nrf_gpio_pin_clear(LED);
-  nrf_gpio_cfg_output(PIN_BUCK);
-  nrf_gpio_pin_clear(PIN_BUCK); // we will change it when the consuption will be ok
+  
 }
 
-void timerVib_init()
+   void timerVib_init()
 {
   NRF_TIMER2->TASKS_STOP=1;
   NRF_TIMER2->PRESCALER=0x9UL; // initiliaze the prescaler to the value 9
@@ -99,6 +103,7 @@ void timerVib_init()
   NRF_TIMER2->SHORTS=TIMER_SHORTS_COMPARE0_CLEAR_Enabled<< TIMER_SHORTS_COMPARE0_CLEAR_Pos;
   
 }
+
 
 void timerSPI_init()
 {
@@ -119,7 +124,7 @@ void timerADC_init()
   NRF_TIMER0->PRESCALER=0x9UL; // initiliaze the prescaler to the value 9
   NRF_TIMER0->MODE=TIMER_MODE_MODE_Timer<< TIMER_MODE_MODE_Pos; // Mode timer
   NRF_TIMER0->BITMODE=TIMER_BITMODE_BITMODE_32Bit<< TIMER_BITMODE_BITMODE_Pos; // Mode 16 bits
-  NRF_TIMER0->CC[1]=0x006B49D1; // 1 hour period
+  NRF_TIMER0->CC[1]=0x00C3;//006B49D1; // 1 hour period
   NRF_TIMER0->INTENSET=TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos ;
   NRF_TIMER0->TASKS_CLEAR = 1;
   NRF_TIMER0->EVENTS_COMPARE[0]=0;
