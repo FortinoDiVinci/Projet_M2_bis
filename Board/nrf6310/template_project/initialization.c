@@ -19,7 +19,7 @@
 //  nrf_gpio_cfg_input(6,NRF_GPIO_PIN_NOPULL);
   // Configure GPIOTE channel BUUTTON to generate event when MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
 
-  NRF_GPIO->PIN_CNF[6]=(GPIO_PIN_CNF_SENSE_Low<< GPIO_PIN_CNF_SENSE_Pos)
+  NRF_GPIO->PIN_CNF[6]=(GPIO_PIN_CNF_SENSE_High<< GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
@@ -58,7 +58,6 @@
   nrf_gpio_cfg_output(21);
   nrf_gpio_cfg_output(22);
   nrf_gpio_cfg_output(23);
-  //nrf_gpio_cfg_output(24);
   nrf_gpio_cfg_output(25);
   nrf_gpio_cfg_output(26);
   nrf_gpio_cfg_output(27);
@@ -80,7 +79,6 @@
   nrf_gpio_pin_clear(21);
   nrf_gpio_pin_clear(22);
   nrf_gpio_pin_clear(23);
-  //nrf_gpio_pin_clear(24);
   nrf_gpio_pin_clear(25);
   nrf_gpio_pin_clear(26);
   nrf_gpio_pin_clear(27);

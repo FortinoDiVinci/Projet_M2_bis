@@ -39,13 +39,14 @@
 #define MAX_LENGTH_SAMPLE 10
 #define INC 4
 #define DEC 1
-#define THRESH 10
+#define THRESH 20
 #define MAX 150
 #define SIZE_PACKET 15
 
 
 uint8_t sample_count = 1;
 uint8_t start = 0;
+uint8_t sleep_count=0;
 
 static int16_t x_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration x samples*/
 static int16_t y_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration y samples */
@@ -58,12 +59,11 @@ static int16_t z_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration z samples */
 
 void GPIOTE_IRQHandler(void);
 
-void TIMER0_IRQHandler(void);
+//void TIMER0_IRQHandler(void);
 
 void TIMER1_IRQHandler(void);
 
-void TIMER2_IRQHandler(void);
-
+//void TIMER2_IRQHandler(void);
 
 int main(void)
 {
@@ -73,12 +73,12 @@ int main(void)
  
    gpiote_init();
    timerSPI_init();
-   timerADC_init();
+//   timerADC_init();
    NRF_POWER->DCDCEN=POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
    NRF_POWER->TASKS_LOWPWR=1;
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
-  NVIC_EnableIRQ(GPIOTE_IRQn);
+   NVIC_EnableIRQ(GPIOTE_IRQn);
  
 //    NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
   
@@ -91,6 +91,7 @@ int main(void)
     {     
       if( start == 1)
       { 
+        NRF_TIMER1->TASKS_STOP=0;
         NRF_TIMER1->TASKS_START=1;
         NVIC_EnableIRQ(TIMER1_IRQn);
         while(start == 1)
@@ -130,6 +131,8 @@ int main(void)
       }
       else 
       {
+        NRF_TIMER1->TASKS_START=0;
+        NRF_TIMER1->TASKS_STOP=1;
         NVIC_DisableIRQ(TIMER1_IRQn);
         __WFI();
 //        __WFE();
@@ -151,86 +154,91 @@ void GPIOTE_IRQHandler(void)
   // Event causing the interrupt must be cleared
   NRF_GPIOTE->EVENTS_PORT = 0;
   NVIC_DisableIRQ(GPIOTE_IRQn);
-  
 }
 
 
 
 void TIMER1_IRQHandler(void)
 {
-  static uint8_t sleep_count=0;
-  if ((NRF_GPIO->IN&0x00000040)==(0x00000040))
+  //static uint8_t sleep_count=0;
+  if ((NRF_GPIO->IN&0x00000040)==(0x00000000))
   {
-      sleep_count ++; 
+    //nrf_gpio_pin_set(LED);
+    sleep_count ++; 
   }
   else
   {
     sleep_count = 0;
   }
-  if(sleep_count >= THRESH)
+  if(sleep_count > THRESH)
   {
-    sleep_count=0;
-    nrf_gpio_pin_clear(LED);
+    sleep_count = 0;
+    //nrf_gpio_pin_clear(LED);
     start = 0;
+    NRF_TIMER1->TASKS_START=0;
+    NRF_TIMER1->TASKS_STOP=1;
+    NVIC_DisableIRQ(TIMER1_IRQn);
+    if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
+    {
+       NRF_TIMER1->EVENTS_COMPARE[0]=0;
+      //NRF_TIMER0->TASKS_START=1;
+    }
     NRF_GPIOTE->EVENTS_PORT = 0;
     NVIC_EnableIRQ(GPIOTE_IRQn);
-    NVIC_DisableIRQ(TIMER1_IRQn);
   }
   else
   {
-    nrf_gpio_pin_set(LED);
     read_ac_value(&x_acc_samples[sample_count],&y_acc_samples[sample_count],&z_acc_samples[sample_count]);
     sample_count += 1;
-  }
-  
-  if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
-  {
-    NRF_TIMER1->EVENTS_COMPARE[0]=0;
+    if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
+    {
+      NRF_TIMER1->EVENTS_COMPARE[0]=0;
     //NRF_TIMER0->TASKS_START=1;
-  }
+    }
+  } 
 }
 
-void TIMER0_IRQHandler(void)
-{
-  static uint8_t adc_value;
-  static bool LED_on = 0;
-  adc_value = start_sampling();
-  
-  if(adc_value < 0xCF)//D5) // 3,50 V
-  {
-    NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 1 hour to 10 s
-    if(!LED_on)
-    {
-      nrf_gpio_pin_set(DEBEUG_PIN);
-      NRF_TIMER0->CC[1] = 0x00C3; // timer is set from 10 s to 100 ms
-      LED_on = 1;
-    }
-    else
-    {
-      nrf_gpio_pin_clear(DEBEUG_PIN);
-      NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 100 ms to 10 s
-      LED_on = 0;
-    }
-  }
-  else
-  {
-    NRF_TIMER0->CC[1] = 0x006B49D1;   // timer is set to 1 hour
-  }
-  
-   if((NRF_TIMER0->EVENTS_COMPARE[1] == 1) && (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE1_Msk))
-  {
-    NRF_TIMER0->EVENTS_COMPARE[1] = 0;
-    NRF_TIMER0->TASKS_START = 1;
-  }
-}
+//void TIMER0_IRQHandler(void)
+//{
+//  static uint8_t adc_value;
+//  static bool LED_on = 0;
+//  adc_value = start_sampling();
+//  
+//  if(adc_value < 0xCF)//D5) // 3,50 V
+//  {
+//    NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 1 hour to 10 s
+//    if(!LED_on)
+//    {
+//      nrf_gpio_pin_set(DEBEUG_PIN);
+//      NRF_TIMER0->CC[1] = 0x00C3; // timer is set from 10 s to 100 ms
+//      LED_on = 1;
+//    }
+//    else
+//    {
+//      nrf_gpio_pin_clear(DEBEUG_PIN);
+//      NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 100 ms to 10 s
+//      LED_on = 0;
+//    }
+//  }
+//  else
+//  {
+//    NRF_TIMER0->CC[1] = 0x006B49D1;   // timer is set to 1 hour
+//  }
+//  
+//   if((NRF_TIMER0->EVENTS_COMPARE[1] == 1) && (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE1_Msk))
+//  {
+//    NRF_TIMER0->EVENTS_COMPARE[1] = 0;
+//    NRF_TIMER0->TASKS_START = 1;
+//  }
+//}
 
-void TIMER2_IRQHandler(void)
-{
-  
- 
-  if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
-  {
-    NRF_TIMER2->EVENTS_COMPARE[0]=0;
-    //NRF_TIMER0->TASKS_START=1;
-  }
-}
+//void TIMER2_IRQHandler(void)
+//{
+//  
+// 
+//  if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
+//  {
+//    NRF_TIMER2->EVENTS_COMPARE[0]=0;
+//    //NRF_TIMER0->TASKS_START=1;
+//  }
+//}
