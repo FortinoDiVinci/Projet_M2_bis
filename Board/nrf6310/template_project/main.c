@@ -35,7 +35,8 @@
 #include "common.h"
 #include "spi_master_config.h"
 #include "radio_config.h"
-
+#include "uart_debug.h"
+   
 #define MAX_LENGTH_SAMPLE 10
 #define INC 4
 #define DEC 1
@@ -43,10 +44,10 @@
 #define MAX 150
 #define SIZE_PACKET 15
 
-
+#define ID_RF   0x1
 uint8_t sample_count = 1;
 uint8_t start = 0;
-uint8_t sleep_count=0;
+//uint8_t sleep_count=0;
 
 static int16_t x_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration x samples*/
 static int16_t y_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration y samples */
@@ -73,9 +74,19 @@ int main(void)
  
    gpiote_init();
    timerSPI_init();
+   uart_config();
 //   timerADC_init();
    NRF_POWER->DCDCEN=POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
    NRF_POWER->TASKS_LOWPWR=1;
+   
+//   /* Start 16 MHz crystal oscillator */
+//   NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
+//   NRF_CLOCK->TASKS_HFCLKSTART = 1;
+//   
+//    /* Wait for the external oscillator to start up */
+//  while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) 
+//  {
+//  } 
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
    NVIC_EnableIRQ(GPIOTE_IRQn);
@@ -87,12 +98,16 @@ int main(void)
     //write_data(0x33,0x10);     // set accelerometre (get mesure: 52hz scall:+-2g filter :50hz)
     read_data(0x10);        // check value 
     write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
+    
+    
+    uart_putstring("Start\r\n");
     while (true)
     {     
       if( start == 1)
       { 
-        NRF_TIMER1->TASKS_STOP=0;
+        
         NRF_TIMER1->TASKS_START=1;
+       // NRF_TIMER1->TASKS_SHUTDOWN = 0;
         NVIC_EnableIRQ(TIMER1_IRQn);
         while(start == 1)
         {
@@ -117,23 +132,25 @@ int main(void)
             z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
             sample_count = 1;
             
-            data_to_send[0] = 0x05;                         // Set Length to 5 bytes
-            data_to_send[1] = 0xFF;                         // Write 1's to S1, for debug purposes
-            data_to_send[2] = (uint8_t) x_acc;
-            data_to_send[3] = (uint8_t) (x_acc >> 8);
-            data_to_send[4] = (uint8_t) y_acc;
-            data_to_send[5] = (uint8_t) (y_acc >> 8);
-            data_to_send[6] = (uint8_t) z_acc;
-            data_to_send[7] = (uint8_t) (z_acc>>8);
+            data_to_send[0] = 0x06;                         // Set Length to 6 bytes
+            data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
+            data_to_send[2] = ID_RF;
+            data_to_send[3] = (uint8_t) x_acc;
+            data_to_send[4] = (uint8_t) (x_acc >> 8);
+            data_to_send[5] = (uint8_t) y_acc;
+            data_to_send[6] = (uint8_t) (y_acc >> 8);
+            data_to_send[7] = (uint8_t) z_acc;
+            data_to_send[8] = (uint8_t) (z_acc>>8);
             rf_send(data_to_send);
           }
         }
       }
       else 
       {
-        NRF_TIMER1->TASKS_START=0;
-        NRF_TIMER1->TASKS_STOP=1;
-        NVIC_DisableIRQ(TIMER1_IRQn);
+     
+//        NRF_TIMER1->TASKS_SHUTDOWN = 1;
+//        NVIC_DisableIRQ(TIMER1_IRQn);
+        NVIC_EnableIRQ(GPIOTE_IRQn);
         __WFI();
 //        __WFE();
 //        __WFE();
@@ -160,10 +177,10 @@ void GPIOTE_IRQHandler(void)
 
 void TIMER1_IRQHandler(void)
 {
-  //static uint8_t sleep_count=0;
+  static uint8_t sleep_count=0;
   if ((NRF_GPIO->IN&0x00000040)==(0x00000000))
   {
-    //nrf_gpio_pin_set(LED);
+    nrf_gpio_pin_set(LED);
     sleep_count ++; 
   }
   else
@@ -173,11 +190,11 @@ void TIMER1_IRQHandler(void)
   if(sleep_count > THRESH)
   {
     sleep_count = 0;
-    //nrf_gpio_pin_clear(LED);
+    nrf_gpio_pin_clear(LED);
     start = 0;
-    NRF_TIMER1->TASKS_START=0;
-    NRF_TIMER1->TASKS_STOP=1;
-    NVIC_DisableIRQ(TIMER1_IRQn);
+//    NRF_TIMER1->TASKS_START=0;
+//    NRF_TIMER1->TASKS_STOP=1;
+    
     if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
     {
        NRF_TIMER1->EVENTS_COMPARE[0]=0;
@@ -185,6 +202,8 @@ void TIMER1_IRQHandler(void)
     }
     NRF_GPIOTE->EVENTS_PORT = 0;
     NVIC_EnableIRQ(GPIOTE_IRQn);
+    NRF_TIMER1->TASKS_SHUTDOWN = 1;
+    NVIC_DisableIRQ(TIMER1_IRQn);
   }
   else
   {

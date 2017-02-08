@@ -2347,6 +2347,12 @@
   <file>
     <name>$PROJ_DIR$\..\..\..\..\Source\templates\system_nrf51.c</name>
   </file>
+  <file>
+    <name>$PROJ_DIR$\..\uart_debug.c</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\..\uart_debug.h</name>
+  </file>
 </project>
 
 
