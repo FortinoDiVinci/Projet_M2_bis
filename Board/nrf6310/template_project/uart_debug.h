@@ -48,6 +48,9 @@ void uart_putstring(const uint8_t *str);
 */
 void uart_config();
 
+void uart_conv_ascii(uint32_t number);
+
+void itoac(double data, uint8_t decimal);
 
 /*lint --flb "Leave library region" */
 #endif

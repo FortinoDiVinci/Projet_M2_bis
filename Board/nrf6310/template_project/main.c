@@ -35,12 +35,12 @@
 #include "common.h"
 #include "spi_master_config.h"
 #include "radio_config.h"
-#include "uart_debug.h"
+//#include "uart_debug.h"
    
 #define MAX_LENGTH_SAMPLE 10
 #define INC 4
 #define DEC 1
-#define THRESH 20
+#define THRESH 10
 #define MAX 150
 #define SIZE_PACKET 15
 
@@ -73,23 +73,16 @@ int main(void)
 */
  
    gpiote_init();
-   timerSPI_init();
-   uart_config();
+   //timerSPI_init();
+   timerVib_init();
+// uart_config();
 //   timerADC_init();
    NRF_POWER->DCDCEN=POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
    NRF_POWER->TASKS_LOWPWR=1;
    
-//   /* Start 16 MHz crystal oscillator */
-//   NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-//   NRF_CLOCK->TASKS_HFCLKSTART = 1;
-//   
-//    /* Wait for the external oscillator to start up */
-//  while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) 
-//  {
-//  } 
-   
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
    NVIC_EnableIRQ(GPIOTE_IRQn);
+   NVIC_EnableIRQ(TIMER1_IRQn);
  
 //    NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
   
@@ -100,17 +93,17 @@ int main(void)
     write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
     
     
-    uart_putstring("Start\r\n");
+    //uart_putstring("\r\nStart\r\n\r\n");
     while (true)
     {     
       if( start == 1)
       { 
-        
-        NRF_TIMER1->TASKS_START=1;
-       // NRF_TIMER1->TASKS_SHUTDOWN = 0;
-        NVIC_EnableIRQ(TIMER1_IRQn);
+     //   uart_putstring("Start = 1\r\n");
         while(start == 1)
         {
+          NRF_TIMER1->TASKS_START = 1;
+          NVIC_EnableIRQ(TIMER1_IRQn);
+          //uart_putstring("Start' = 1\r\n");
 //          __WFE();
 //          __WFE();
           __WFI();
@@ -147,9 +140,10 @@ int main(void)
       }
       else 
       {
-     
-//        NRF_TIMER1->TASKS_SHUTDOWN = 1;
-//        NVIC_DisableIRQ(TIMER1_IRQn);
+        //uart_putstring("???\r\n");
+        NRF_TIMER1->TASKS_STOP = 1;
+        NRF_TIMER1->TASKS_SHUTDOWN = 1;
+        NVIC_DisableIRQ(TIMER1_IRQn);
         NVIC_EnableIRQ(GPIOTE_IRQn);
         __WFI();
 //        __WFE();
@@ -165,8 +159,9 @@ int main(void)
 
 void GPIOTE_IRQHandler(void)
 {
+  //uart_putstring("Inside GPIOTE_IRQHandler\r\n");
   nrf_gpio_pin_toggle(LED2);
-  start =1;
+  start = 1;
 
   // Event causing the interrupt must be cleared
   NRF_GPIOTE->EVENTS_PORT = 0;
@@ -177,10 +172,14 @@ void GPIOTE_IRQHandler(void)
 
 void TIMER1_IRQHandler(void)
 {
+  //uart_putstring("Inside TIMER1_IRQHandler\r\n");
   static uint8_t sleep_count=0;
-  if ((NRF_GPIO->IN&0x00000040)==(0x00000000))
+  if ((NRF_GPIO->IN&0x00000040) == 0x00000000)
   {
     nrf_gpio_pin_set(LED);
+    //uart_putstring("sleep_count = ");
+    //itoac(sleep_count, 0);
+    //uart_putstring("\r\n");
     sleep_count ++; 
   }
   else
@@ -189,6 +188,7 @@ void TIMER1_IRQHandler(void)
   }
   if(sleep_count > THRESH)
   {
+    //uart_putstring("Threshold reached\r\n");
     sleep_count = 0;
     nrf_gpio_pin_clear(LED);
     start = 0;
@@ -207,6 +207,7 @@ void TIMER1_IRQHandler(void)
   }
   else
   {
+    //uart_putstring("acc sampling\r\n");
     read_ac_value(&x_acc_samples[sample_count],&y_acc_samples[sample_count],&z_acc_samples[sample_count]);
     sample_count += 1;
     if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
