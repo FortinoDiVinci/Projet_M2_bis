@@ -7,9 +7,10 @@
 #define LED2 19
 #define BUTTON 17
 #define PIN_BUCK 0
-#define DEBEUG_PIN 2
+#define DEBUG_PIN 2
 #define DEBUG_UART_RX   1
 #define DEBUG_UART_TX   3
+
 
 void gpiote_init(void);
 void timerSPI_init();

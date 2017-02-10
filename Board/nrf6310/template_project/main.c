@@ -35,7 +35,7 @@
 #include "common.h"
 #include "spi_master_config.h"
 #include "radio_config.h"
-//#include "uart_debug.h"
+#include "uart_debug.h"
    
 #define MAX_LENGTH_SAMPLE 10
 #define INC 4
@@ -46,12 +46,14 @@
 
 #define ID_RF   0x1
 uint8_t sample_count = 1;
+uint8_t read_acc_value = 0;
 uint8_t start = 0;
 //uint8_t sleep_count=0;
 
 static int16_t x_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration x samples*/
 static int16_t y_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration y samples */
 static int16_t z_acc_samples[MAX_LENGTH_SAMPLE]; /*acceleration z samples */
+
 
 /**
  * main function
@@ -73,12 +75,12 @@ int main(void)
 */
  
    gpiote_init();
-   //timerSPI_init();
+   timerSPI_init();
    timerVib_init();
-// uart_config();
+//   uart_config();
 //   timerADC_init();
-   NRF_POWER->DCDCEN=POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
-   NRF_POWER->TASKS_LOWPWR=1;
+   NRF_POWER->DCDCEN = POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
+   NRF_POWER->TASKS_LOWPWR = 1;
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
    NVIC_EnableIRQ(GPIOTE_IRQn);
@@ -93,57 +95,68 @@ int main(void)
     write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
     
     
-    //uart_putstring("\r\nStart\r\n\r\n");
+//    uart_putstring("\r\nStart\r\n\r\n");
     while (true)
     {     
-      if( start == 1)
+      if(start == 1)
       { 
      //   uart_putstring("Start = 1\r\n");
-        while(start == 1)
+          //NRF_TIMER1->TASKS_START = 1;
+          //NVIC_EnableIRQ(TIMER1_IRQn);
+          
+        while(start == 1) // read_acc_value == 1)
         {
           NRF_TIMER1->TASKS_START = 1;
           NVIC_EnableIRQ(TIMER1_IRQn);
+          
+            if(sample_count == MAX_LENGTH_SAMPLE)
+              {
+                uint16_t x_acc = 0;
+                uint16_t y_acc = 0;
+                uint16_t z_acc = 0;
+                uint8_t data_to_send[SIZE_PACKET];
+                int32_t x_acceleration = 0, y_acceleration = 0, z_acceleration = 0;
+                for (uint8_t i = 0; i < MAX_LENGTH_SAMPLE; i++)
+                {
+                   x_acceleration += x_acc_samples[i];
+                   y_acceleration += y_acc_samples[i];
+                   z_acceleration += z_acc_samples[i];
+                }
+                x_acc = x_acceleration/MAX_LENGTH_SAMPLE;
+                y_acc = y_acceleration/MAX_LENGTH_SAMPLE;
+                z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
+                sample_count = 1;
+                
+                data_to_send[0] = 0x06;                         // Set Length to 6 bytes
+                data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
+                data_to_send[2] = ID_RF;
+                data_to_send[3] = (uint8_t) x_acc;
+                data_to_send[4] = (uint8_t) (x_acc >> 8);
+                data_to_send[5] = (uint8_t) y_acc;
+                data_to_send[6] = (uint8_t) (y_acc >> 8);
+                data_to_send[7] = (uint8_t) z_acc;
+                data_to_send[8] = (uint8_t) (z_acc>>8);
+                rf_send(data_to_send);
+              }
+          
           //uart_putstring("Start' = 1\r\n");
 //          __WFE();
 //          __WFE();
           __WFI();
-          if(sample_count == MAX_LENGTH_SAMPLE)
-          {
-            uint16_t x_acc=0;
-            uint16_t y_acc=0;
-            uint16_t z_acc=0;
-            uint8_t data_to_send[SIZE_PACKET];
-            int32_t x_acceleration=0,y_acceleration=0,z_acceleration=0;
-            for (uint8_t i =0; i< MAX_LENGTH_SAMPLE; i++)
-            {
-               x_acceleration += x_acc_samples[i];
-               y_acceleration += y_acc_samples[i];
-               z_acceleration += z_acc_samples[i];
-            }
-            x_acc = x_acceleration/MAX_LENGTH_SAMPLE;
-            y_acc = y_acceleration/MAX_LENGTH_SAMPLE;
-            z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
-            sample_count = 1;
-            
-            data_to_send[0] = 0x06;                         // Set Length to 6 bytes
-            data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
-            data_to_send[2] = ID_RF;
-            data_to_send[3] = (uint8_t) x_acc;
-            data_to_send[4] = (uint8_t) (x_acc >> 8);
-            data_to_send[5] = (uint8_t) y_acc;
-            data_to_send[6] = (uint8_t) (y_acc >> 8);
-            data_to_send[7] = (uint8_t) z_acc;
-            data_to_send[8] = (uint8_t) (z_acc>>8);
-            rf_send(data_to_send);
-          }
         }
       }
       else 
       {
-        //uart_putstring("???\r\n");
+        /* SHUTTING DOWN TIMER 1 & 2 */
+        NRF_TIMER2->TASKS_STOP = 1;
+        NRF_TIMER2->TASKS_SHUTDOWN = 1;
+        NVIC_DisableIRQ(TIMER2_IRQn);
+        
         NRF_TIMER1->TASKS_STOP = 1;
         NRF_TIMER1->TASKS_SHUTDOWN = 1;
         NVIC_DisableIRQ(TIMER1_IRQn);
+        
+        /* REACTIVATING PORT EVENT DETECTION */
         NVIC_EnableIRQ(GPIOTE_IRQn);
         __WFI();
 //        __WFE();
@@ -160,7 +173,6 @@ int main(void)
 void GPIOTE_IRQHandler(void)
 {
   //uart_putstring("Inside GPIOTE_IRQHandler\r\n");
-  nrf_gpio_pin_toggle(LED2);
   start = 1;
 
   // Event causing the interrupt must be cleared
@@ -176,7 +188,6 @@ void TIMER1_IRQHandler(void)
   static uint8_t sleep_count=0;
   if ((NRF_GPIO->IN&0x00000040) == 0x00000000)
   {
-    nrf_gpio_pin_set(LED);
     //uart_putstring("sleep_count = ");
     //itoac(sleep_count, 0);
     //uart_putstring("\r\n");
@@ -190,26 +201,27 @@ void TIMER1_IRQHandler(void)
   {
     //uart_putstring("Threshold reached\r\n");
     sleep_count = 0;
-    nrf_gpio_pin_clear(LED);
     start = 0;
+    read_acc_value = 0;
 //    NRF_TIMER1->TASKS_START=0;
 //    NRF_TIMER1->TASKS_STOP=1;
     
     if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
     {
-       NRF_TIMER1->EVENTS_COMPARE[0]=0;
+       NRF_TIMER1->EVENTS_COMPARE[0] = 0;
       //NRF_TIMER0->TASKS_START=1;
     }
     NRF_GPIOTE->EVENTS_PORT = 0;
     NVIC_EnableIRQ(GPIOTE_IRQn);
-    NRF_TIMER1->TASKS_SHUTDOWN = 1;
+    NRF_TIMER1->TASKS_STOP = 1;
     NVIC_DisableIRQ(TIMER1_IRQn);
   }
   else
   {
     //uart_putstring("acc sampling\r\n");
-    read_ac_value(&x_acc_samples[sample_count],&y_acc_samples[sample_count],&z_acc_samples[sample_count]);
+    read_ac_value(&x_acc_samples[sample_count], &y_acc_samples[sample_count], &z_acc_samples[sample_count]);
     sample_count += 1;
+    //read_acc_value = 1;
     if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
     {
       NRF_TIMER1->EVENTS_COMPARE[0]=0;
@@ -252,13 +264,45 @@ void TIMER1_IRQHandler(void)
 //  }
 //}
 
-//void TIMER2_IRQHandler(void)
-//{
-//  
-// 
-//  if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
-//  {
-//    NRF_TIMER2->EVENTS_COMPARE[0]=0;
-//    //NRF_TIMER0->TASKS_START=1;
-//  }
-//}
+void TIMER2_IRQHandler(void)
+{
+  read_ac_value(&x_acc_samples[sample_count], &y_acc_samples[sample_count], &z_acc_samples[sample_count]);
+  sample_count += 1;
+ 
+  if(sample_count == MAX_LENGTH_SAMPLE)
+  {
+    uint16_t x_acc = 0;
+    uint16_t y_acc = 0;
+    uint16_t z_acc = 0;
+    uint8_t data_to_send[SIZE_PACKET];
+    int32_t x_acceleration = 0, y_acceleration = 0, z_acceleration = 0;
+    for (uint8_t i = 0; i < MAX_LENGTH_SAMPLE; i++)
+    {
+       x_acceleration += x_acc_samples[i];
+       y_acceleration += y_acc_samples[i];
+       z_acceleration += z_acc_samples[i];
+    }
+    x_acc = x_acceleration/MAX_LENGTH_SAMPLE;
+    y_acc = y_acceleration/MAX_LENGTH_SAMPLE;
+    z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
+    sample_count = 1;
+    
+    data_to_send[0] = 0x06;                         // Set Length to 6 bytes
+    data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
+    data_to_send[2] = ID_RF;
+    data_to_send[3] = (uint8_t) x_acc;
+    data_to_send[4] = (uint8_t) (x_acc >> 8);
+    data_to_send[5] = (uint8_t) y_acc;
+    data_to_send[6] = (uint8_t) (y_acc >> 8);
+    data_to_send[7] = (uint8_t) z_acc;
+    data_to_send[8] = (uint8_t) (z_acc>>8);
+    rf_send(data_to_send);
+  }  
+  
+  
+  if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
+  {
+    NRF_TIMER2->EVENTS_COMPARE[0]=0;
+    //NRF_TIMER0->TASKS_START=1;
+  }
+}

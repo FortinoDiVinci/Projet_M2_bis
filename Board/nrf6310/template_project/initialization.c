@@ -10,8 +10,6 @@
 #include "adc.h"
 
 
-
-
  void gpiote_init(void)
 {
 //  *(uint32_t *)0x40000504 = 0xC007FFDF; // Workaround for PAN_028 rev1.1 anomaly 23 - System: Manual setup is required to enable use of peripherals
@@ -19,7 +17,7 @@
 //  nrf_gpio_cfg_input(6,NRF_GPIO_PIN_NOPULL);
   // Configure GPIOTE channel BUUTTON to generate event when MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
 
-  NRF_GPIO->PIN_CNF[6]=(GPIO_PIN_CNF_SENSE_High<< GPIO_PIN_CNF_SENSE_Pos)
+  NRF_GPIO->PIN_CNF[6]=(GPIO_PIN_CNF_SENSE_High << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
@@ -28,8 +26,9 @@
   //nrf_gpiote_event_config(0, 6, NRF_GPIOTE_POLARITY_LOTOHI);
 
 
-  // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
-  NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Enabled<<GPIOTE_INTENSET_PORT_Pos;
+
+  NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Enabled << GPIOTE_INTENSET_PORT_Pos;
+  //  // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
   //NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Enabled<<GPIOTE_INTENSET_IN0_Pos;
   
   
@@ -41,8 +40,8 @@
   NRF_UART0->PSELRXD = DEBUG_UART_RX;
   
   
-  nrf_gpio_cfg_output(DEBEUG_PIN);
-  nrf_gpio_pin_clear(DEBEUG_PIN);                                    
+  nrf_gpio_cfg_output(DEBUG_PIN);
+  nrf_gpio_pin_clear(DEBUG_PIN);                                    
   nrf_gpio_cfg_output(LED2);
   nrf_gpio_pin_clear(LED2);
   nrf_gpio_cfg_output(PIN_ADC_ON);
