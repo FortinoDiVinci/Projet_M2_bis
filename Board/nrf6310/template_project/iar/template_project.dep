@@ -7,57 +7,13 @@
     <name>Debug</name>
     <outputs>
       <file>$PROJ_DIR$\..\initialization.c</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\nrf_gpiote.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\radio_config.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_nrf51.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\uart_debug.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\uart_debug.o</file>
-      <file>$TOOLKIT_DIR$\config\linker\NordicSemi\nRF51822_QFAA.icf</file>
-      <file>$PROJ_DIR$\Debug\Obj\spi_master.pbi</file>
-      <file>$TOOLKIT_DIR$\CMSIS\Include\core_cmFunc.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\iar_startup_nrf51.o</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\common.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\compiler_abstraction.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\spi_master.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_nrf51.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\math.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-      <file>$PROJ_DIR$\Debug\List\template_project.map</file>
-      <file>$PROJ_DIR$\Debug\Obj\adc.o</file>
-      <file>$TOOLKIT_DIR$\lib\rt6M_tl.a</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\nrf51_deprecated.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Source\templates\iar\iar_startup_nrf51.s</file>
       <file>$PROJ_DIR$\..\initialization.h</file>
-      <file>$PROJ_DIR$\..\adc.h</file>
-      <file>$PROJ_DIR$\..\adc.c</file>
-      <file>$TOOLKIT_DIR$\CMSIS\Include\core_cmInstr.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\initialization.pbi</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\nrf51_bitfields.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\nrf51.h</file>
-      <file>$PROJ_DIR$\Debug\Exe\template_project_iar.hex</file>
-      <file>$PROJ_DIR$\Debug\Obj\adc.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\system_nrf51.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\radio_config.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\xtgmath.h</file>
       <file>$PROJ_DIR$\Debug\Obj\template_project.pbd</file>
       <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
-      <file>$PROJ_DIR$\..\main.c</file>
-      <file>$PROJ_DIR$\..\radio_config.c</file>
-      <file>$PROJ_DIR$\..\uart_debug.h</file>
-      <file>$PROJ_DIR$\..\radio_config.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Source\spi_master\spi_master.c</file>
-      <file>$PROJ_DIR$\..\spi_master_config.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Source\templates\system_nrf51.c</file>
-      <file>$PROJ_DIR$\..\uart_debug.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\Include\spi_master.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\cmsis_iar.h</file>
       <file>$PROJ_DIR$\Debug\Obj\initialization.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\cmsis_iar.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\spi_master.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Source\spi_master\spi_master_config.h</file>
       <file>$TOOLKIT_DIR$\inc\c\ymath.h</file>
@@ -72,27 +28,71 @@
       <file>$PROJ_DIR$\..\..\..\..\Include\nrf.h</file>
       <file>$PROJ_DIR$\Debug\Exe\template_project.out</file>
       <file>$TOOLKIT_DIR$\lib\m6M_tl.a</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\nrf51_deprecated.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\initialization.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\nrf51_bitfields.h</file>
+      <file>$TOOLKIT_DIR$\CMSIS\Include\core_cmInstr.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\nrf51.h</file>
+      <file>$PROJ_DIR$\Debug\Exe\template_project_iar.hex</file>
+      <file>$PROJ_DIR$\Debug\Obj\adc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\system_nrf51.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\radio_config.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\xtgmath.h</file>
+      <file>$PROJ_DIR$\..\adc.h</file>
+      <file>$PROJ_DIR$\..\adc.c</file>
+      <file>$TOOLKIT_DIR$\lib\rt6M_tl.a</file>
+      <file>$PROJ_DIR$\..\main.c</file>
+      <file>$PROJ_DIR$\..\radio_config.c</file>
+      <file>$PROJ_DIR$\..\uart_debug.h</file>
+      <file>$PROJ_DIR$\..\radio_config.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Source\spi_master\spi_master.c</file>
+      <file>$PROJ_DIR$\..\spi_master_config.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Source\templates\system_nrf51.c</file>
+      <file>$PROJ_DIR$\..\uart_debug.c</file>
+      <file>$TOOLKIT_DIR$\config\linker\NordicSemi\nRF51822_QFAA.icf</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\nrf_gpiote.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\radio_config.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\iar_startup_nrf51.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\spi_master.pbi</file>
+      <file>$TOOLKIT_DIR$\CMSIS\Include\core_cmFunc.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\uart_debug.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\uart_debug.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_nrf51.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\common.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Include\compiler_abstraction.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\spi_master.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_nrf51.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\math.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$PROJ_DIR$\Debug\List\template_project.map</file>
+      <file>$PROJ_DIR$\Debug\Obj\adc.o</file>
     </outputs>
     <file>
       <name>$PROJ_DIR$\..\initialization.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 27</file>
+          <file> 23</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 51</file>
+          <file> 5</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 23 29 57 33 1 26 56 63 2 40 36 17 21 34 12 59 24 61 52 28 13 62 9 50 35</file>
+          <file> 2 26 13 30 50 25 12 19 48 4 33 63 22 31 58 15 36 17 8 24 59 18 53 6 32</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 35 12 40 17 36 61 52 33 1 63 29 62 26 50 56 9 34 28 21 13 57 59 2 23 24</file>
+          <file> 32 58 4 63 33 17 8 30 50 19 26 18 25 6 12 53 31 24 22 59 13 15 48 2 36</file>
         </tool>
       </inputs>
     </file>
@@ -101,7 +101,7 @@
       <outputs>
         <tool>
           <name>ILINK</name>
-          <file> 64 18</file>
+          <file> 20 64</file>
         </tool>
       </outputs>
     </file>
@@ -110,30 +110,49 @@
       <outputs>
         <tool>
           <name>AARM</name>
-          <file> 10</file>
+          <file> 51</file>
         </tool>
       </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Debug\Exe\template_project.out</name>
+      <outputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 64</file>
+        </tool>
+        <tool>
+          <name>OBJCOPY</name>
+          <file> 27</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 47 65 51 5 14 34 60 61 54 16 38 21 11</file>
+        </tool>
+      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\adc.c</name>
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 31</file>
+          <file> 28</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 19</file>
+          <file> 65</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 36 40 34 12 52 9 33 61 28 50 57 17 1 29 62 26 56 24</file>
+          <file> 33 4 31 58 8 53 30 17 24 6 13 63 50 26 18 25 12 36</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 24 12 40 17 36 61 52 33 1 57 29 62 26 50 56 9 34 28</file>
+          <file> 36 58 4 63 33 17 8 30 50 13 26 18 25 6 12 53 31 24</file>
         </tool>
       </inputs>
     </file>
@@ -142,53 +161,7 @@
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 32</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 58</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 1 12 24 33 28 29 46 54 62 50 57 16 59 49 43 40 36 17 9 63 2 23 11 44 61 52 38 13 35 21 34 26 56</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 35 12 40 17 36 61 52 33 1 16 54 38 63 29 62 26 50 56 9 34 28 21 13 57 59 2 24 23 49 11 46 44 43</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\radio_config.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 3</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 37</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 29 40 50 52 59 57 62 12 9 17 61 28 34 26 36 33 1 56 63 21 44 13</file>
-        </tool>
-        <tool>
-          <name>ICCARM</name>
-          <file> 44 57 29 62 12 40 17 36 61 52 33 1 26 50 56 9 34 28 59 63 21 13</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\Source\spi_master\spi_master.c</name>
-      <outputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 8</file>
+          <file> 29</file>
         </tool>
         <tool>
           <name>ICCARM</name>
@@ -198,11 +171,57 @@
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 62 12 50 28 53 40 36 17 9 35 57 33 1 13 59 11 61 52 63 29 21 34 26 56 49</file>
+          <file> 50 58 36 30 24 26 44 10 18 6 13 62 15 7 41 4 33 63 53 19 48 2 57 42 17 8 35 59 32 22 31 25 12</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 49 35 12 40 17 36 61 52 33 1 59 63 29 62 26 50 56 9 34 28 21 13 57 11 53</file>
+          <file> 32 58 4 63 33 17 8 30 50 62 10 35 19 26 18 25 6 12 53 31 24 22 59 13 15 48 36 2 7 57 44 42 41</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\radio_config.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 49</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 34</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 26 4 6 8 15 13 18 58 53 63 17 24 31 25 33 30 50 12 19 22 42 59</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 42 13 26 18 58 4 63 33 17 8 30 50 25 6 12 53 31 24 15 19 22 59</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\Source\spi_master\spi_master.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 52</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 60</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 18 58 6 24 9 4 33 63 53 32 13 30 50 59 15 57 17 8 19 26 22 31 25 12 7</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 7 32 58 4 63 33 17 8 30 50 15 19 26 18 25 6 12 53 31 24 22 59 13 57 9</file>
         </tool>
       </inputs>
     </file>
@@ -211,21 +230,21 @@
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 4</file>
+          <file> 56</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 15</file>
+          <file> 61</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 29 52 40 62 12 50 9 63 17 61 21 35 36 33 1 28 34 26 56 13</file>
+          <file> 26 8 4 18 58 6 53 19 63 17 22 32 33 30 50 24 31 25 12 59</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 12 40 17 36 61 52 33 1 35 63 29 62 26 50 56 9 34 28 21 13</file>
+          <file> 58 4 63 33 17 8 30 50 32 19 26 18 25 6 12 53 31 24 22 59</file>
         </tool>
       </inputs>
     </file>
@@ -234,40 +253,21 @@
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 5</file>
+          <file> 55</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 6</file>
+          <file> 54</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 28 59 40 33 61 56 12 35 63 36 52 13 62 26 50 57 17 1 29 21 34 9 43</file>
+          <file> 24 15 4 30 17 12 58 32 19 33 8 59 18 25 6 13 63 50 26 22 31 53 41</file>
         </tool>
         <tool>
           <name>ICCARM</name>
-          <file> 43 35 12 40 17 36 61 52 33 1 59 63 29 62 26 50 56 9 34 28 21 13 57</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\Debug\Exe\template_project.out</name>
-      <outputs>
-        <tool>
-          <name>ILINK</name>
-          <file> 18</file>
-        </tool>
-        <tool>
-          <name>OBJCOPY</name>
-          <file> 30</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ILINK</name>
-          <file> 7 19 10 51 58 37 14 15 6 60 20 65 55</file>
+          <file> 41 32 58 4 63 33 17 8 30 50 15 19 26 18 25 6 12 53 31 24 22 59 13</file>
         </tool>
       </inputs>
     </file>

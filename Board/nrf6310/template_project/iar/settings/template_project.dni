@@ -120,7 +120,11 @@ TraceBufferSize=0x00000000
 TraceShowTime=0
 TraceShowTimeFreq=1000000
 [DebugChecksum]
-Checksum=756442778
+<<<<<<< HEAD
+Checksum=1293428669
+=======
+Checksum=1348207213
+>>>>>>> parent of fc02e4f... Debugg vibrasensor
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -136,9 +140,9 @@ ShowSource=1
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.179.3" 0 0 1 "" 0 "" 0
-Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.198.5" 0 0 1 "" 0 "" 0
-Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.176.3" 0 0 1 "" 0 "" 0
+Bp0=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.148.11" 0 0 1 "" 0 "" 0
+Bp1=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.155.9" 0 0 1 "" 0 "" 0
+Bp2=_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.148.11" 0 0 1 "" 0 "" 0
 Count=3
 [Log file]
 LoggingEnabled=_ 0

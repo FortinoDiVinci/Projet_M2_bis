@@ -40,7 +40,7 @@
 #define MAX_LENGTH_SAMPLE 10
 #define INC 4
 #define DEC 1
-#define THRESH 10
+#define THRESH 20
 #define MAX 150
 #define SIZE_PACKET 15
 
@@ -77,16 +77,15 @@ int main(void)
    gpiote_init();
    timerSPI_init();
    timerVib_init();
-//   uart_config();
+   uart_config();
+
 //   timerADC_init();
    NRF_POWER->DCDCEN = POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
    NRF_POWER->TASKS_LOWPWR = 1;
+    
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
    NVIC_EnableIRQ(GPIOTE_IRQn);
-   NVIC_EnableIRQ(TIMER1_IRQn);
- 
-//    NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
   
   //SPI0  
     write_data(0x3F,0X10);  // set accelrometre (get mesure : 52 hz; scall:+-16g filter :50hz)
@@ -95,51 +94,55 @@ int main(void)
     write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
     
     
-//    uart_putstring("\r\nStart\r\n\r\n");
+
+    uart_putstring("Start\r\n");
+
     while (true)
     {     
       if(start == 1)
-      { 
-     //   uart_putstring("Start = 1\r\n");
-          //NRF_TIMER1->TASKS_START = 1;
-          //NVIC_EnableIRQ(TIMER1_IRQn);
-          
-        while(start == 1) // read_acc_value == 1)
+      {
+        uart_putstring("start = 1\r\n");
+        NRF_TIMER1->TASKS_START = 1;
+        NVIC_EnableIRQ(TIMER1_IRQn);
+        
+        while( read_acc_value == 1) // start == 1) 
         {
-          NRF_TIMER1->TASKS_START = 1;
-          NVIC_EnableIRQ(TIMER1_IRQn);
+          uart_putstring("read_acc_value = 1\r\n");
+          NRF_TIMER2->TASKS_START = 1;
+          NVIC_EnableIRQ(TIMER2_IRQn);
           
-            if(sample_count == MAX_LENGTH_SAMPLE)
-              {
-                uint16_t x_acc = 0;
-                uint16_t y_acc = 0;
-                uint16_t z_acc = 0;
-                uint8_t data_to_send[SIZE_PACKET];
-                int32_t x_acceleration = 0, y_acceleration = 0, z_acceleration = 0;
-                for (uint8_t i = 0; i < MAX_LENGTH_SAMPLE; i++)
-                {
-                   x_acceleration += x_acc_samples[i];
-                   y_acceleration += y_acc_samples[i];
-                   z_acceleration += z_acc_samples[i];
-                }
-                x_acc = x_acceleration/MAX_LENGTH_SAMPLE;
-                y_acc = y_acceleration/MAX_LENGTH_SAMPLE;
-                z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
-                sample_count = 1;
-                
-                data_to_send[0] = 0x06;                         // Set Length to 6 bytes
-                data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
-                data_to_send[2] = ID_RF;
-                data_to_send[3] = (uint8_t) x_acc;
-                data_to_send[4] = (uint8_t) (x_acc >> 8);
-                data_to_send[5] = (uint8_t) y_acc;
-                data_to_send[6] = (uint8_t) (y_acc >> 8);
-                data_to_send[7] = (uint8_t) z_acc;
-                data_to_send[8] = (uint8_t) (z_acc>>8);
-                rf_send(data_to_send);
-              }
+//            if(sample_count == MAX_LENGTH_SAMPLE)
+//              {
+//                uint16_t x_acc = 0;
+//                uint16_t y_acc = 0;
+//                uint16_t z_acc = 0;
+//                uint8_t data_to_send[SIZE_PACKET];
+//                int32_t x_acceleration = 0, y_acceleration = 0, z_acceleration = 0;
+//                for (uint8_t i = 0; i < MAX_LENGTH_SAMPLE; i++)
+//                {
+//                   x_acceleration += x_acc_samples[i];
+//                   y_acceleration += y_acc_samples[i];
+//                   z_acceleration += z_acc_samples[i];
+//                }
+//                x_acc = x_acceleration/MAX_LENGTH_SAMPLE;
+//                y_acc = y_acceleration/MAX_LENGTH_SAMPLE;
+//                z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
+//                sample_count = 1;
+//                
+//                data_to_send[0] = 0x06;                         // Set Length to 6 bytes
+//                data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
+//                data_to_send[2] = ID_RF;
+//                data_to_send[3] = (uint8_t) x_acc;
+//                data_to_send[4] = (uint8_t) (x_acc >> 8);
+//                data_to_send[5] = (uint8_t) y_acc;
+//                data_to_send[6] = (uint8_t) (y_acc >> 8);
+//                data_to_send[7] = (uint8_t) z_acc;
+//                data_to_send[8] = (uint8_t) (z_acc>>8);
+//                rf_send(data_to_send);
+//              }
           
           //uart_putstring("Start' = 1\r\n");
+
 //          __WFE();
 //          __WFE();
           __WFI();
@@ -147,6 +150,7 @@ int main(void)
       }
       else 
       {
+        uart_putstring("Going to sleep\r\n");
         /* SHUTTING DOWN TIMER 1 & 2 */
         NRF_TIMER2->TASKS_STOP = 1;
         NRF_TIMER2->TASKS_SHUTDOWN = 1;
@@ -184,9 +188,8 @@ void GPIOTE_IRQHandler(void)
 
 void TIMER1_IRQHandler(void)
 {
-  //uart_putstring("Inside TIMER1_IRQHandler\r\n");
   static uint8_t sleep_count=0;
-  if ((NRF_GPIO->IN&0x00000040) == 0x00000000)
+  if ((NRF_GPIO->IN&0x00000040)==(0x00000000))
   {
     //uart_putstring("sleep_count = ");
     //itoac(sleep_count, 0);
@@ -199,7 +202,6 @@ void TIMER1_IRQHandler(void)
   }
   if(sleep_count > THRESH)
   {
-    //uart_putstring("Threshold reached\r\n");
     sleep_count = 0;
     start = 0;
     read_acc_value = 0;
@@ -218,10 +220,11 @@ void TIMER1_IRQHandler(void)
   }
   else
   {
-    //uart_putstring("acc sampling\r\n");
-    read_ac_value(&x_acc_samples[sample_count], &y_acc_samples[sample_count], &z_acc_samples[sample_count]);
-    sample_count += 1;
-    //read_acc_value = 1;
+    uart_putstring("launching acc sampling\r\n");
+    //read_ac_value(&x_acc_samples[sample_count], &y_acc_samples[sample_count], &z_acc_samples[sample_count]);
+
+    //sample_count += 1;
+    read_acc_value = 1;
     if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
     {
       NRF_TIMER1->EVENTS_COMPARE[0]=0;
@@ -266,6 +269,8 @@ void TIMER1_IRQHandler(void)
 
 void TIMER2_IRQHandler(void)
 {
+  uart_putstring("Inside TIMER2 : doing acc sampling\r\n");
+  
   read_ac_value(&x_acc_samples[sample_count], &y_acc_samples[sample_count], &z_acc_samples[sample_count]);
   sample_count += 1;
  
@@ -286,6 +291,8 @@ void TIMER2_IRQHandler(void)
     y_acc = y_acceleration/MAX_LENGTH_SAMPLE;
     z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
     sample_count = 1;
+    
+    uart_putstring("sending data\r\n");
     
     data_to_send[0] = 0x06;                         // Set Length to 6 bytes
     data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
