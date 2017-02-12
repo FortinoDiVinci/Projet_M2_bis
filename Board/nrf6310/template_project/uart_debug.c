@@ -1,8 +1,23 @@
+/****************************************************** 
+ * File : uart_debug.c                                *
+ * Author : Vincent FORTINEAU, Cyril RIOCHE, Fabian   *
+ *          LAPOTRE                                   *
+ *                                                    *
+ * This file contains all the functions about UART    *
+ * transmission, used to debug the program.           *
+ *                                                    *
+ ******************************************************/
+
+
+/************************
+*       INCLUDES        *
+*************************/
 #include "uart_debug.h"
 
 
-const char *h="0123456789";
-
+/************************
+*       FUNCTIONS       *
+*************************/
 uint8_t uart_get(void)
 {
   while (NRF_UART0->EVENTS_RXDRDY != 1)

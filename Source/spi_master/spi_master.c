@@ -1,23 +1,30 @@
-/* Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
- *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
- *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
- *
- */
+/****************************************************** 
+ * File : spi_master.c                                *
+ * Author : Vincent FORTINEAU, Cyril RIOCHE, Fabian   *
+ *          LAPOTRE                                   *
+ *                                                    *
+ * This file contains all the functions about the SPI *
+ * transmission, used initialize the IMU and get the  *
+ * acceleratios values                                *
+ *                                                    *
+ ******************************************************/
 
-#include <spi_master.h>
-#include "nrf_delay.h"
-#include "nrf_gpio.h"
-#include "common.h"
-#include "spi_master_config.h" // This file must be in the application folder
+
+/************************
+*       INCLUDES        *
+*************************/
+
+#include "spi_master.h"
+
+
+/************************
+*       FUNCTIONS       *
+*************************/
 
 uint32_t* spi_master_init(SPIModuleNumber module_number, SPIMode mode, bool lsb_first)
 {
+    /* Declaration */
+  
     uint32_t config_mode;
 
     NRF_SPI_Type *spi_base_address = (SPI0 == module_number)? NRF_SPI0 : (NRF_SPI_Type *)NRF_SPI1;
@@ -94,9 +101,13 @@ uint32_t* spi_master_init(SPIModuleNumber module_number, SPIMode mode, bool lsb_
 
 bool spi_master_tx_rx(uint32_t *spi_base_address, uint16_t transfer_size, const uint8_t *tx_data, uint8_t *rx_data)
 {
+  
+    /* Declarations */
+  
     uint32_t counter = 0;
     uint16_t number_of_txd_bytes = 0;
     uint32_t SEL_SS_PINOUT;
+    
     /*lint -e{826} //Are too small pointer conversion */
     NRF_SPI_Type *spi_base = (NRF_SPI_Type *)spi_base_address;
 
@@ -143,40 +154,52 @@ bool spi_master_tx_rx(uint32_t *spi_base_address, uint16_t transfer_size, const 
     return true;
 }
 
-/* The function write_data set the register */
+void init_IMU(void)
+{
+  
+  write_data(0x3F,0X10);  // set accelrometre (get mesure : 52 hz; scall:+-16g filter :50hz)
+  //write_data(0x33,0x10);     // set accelerometre (get mesure: 52hz scall:+-2g filter :50hz)
+  read_data(0x10);        // check value 
+  write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
+  
+}
+
 bool write_data(uint8_t data, uint8_t adress )
 {
+  /* Declarations */
+  
   uint8_t tx_data[2];
   uint8_t rx_data[2];
+  
   uint32_t *spi_base_address = spi_master_init(SPI0, SPI_MODE0,0);
+  
   if (spi_base_address == 0)
   {
     return false;
   }
-  tx_data[0]=adress&0x7F; // tranmit adress with MSB set to 0 must be changed for power consumption
-  tx_data[1]=data;
+  
+  tx_data[0] = adress&0x7F; // tranmit adress with MSB set to 0 must be changed for power consumption
+  tx_data[1] = data;
   
   if(!spi_master_tx_rx(spi_base_address, 2, (const uint8_t *)tx_data, rx_data) )
     return false;
+  
   return true;
 }
 
-//bool init_fifo()
-//{
-//   
-//}
 
 bool read_data(uint8_t adress)
 {
   uint8_t tx_data[2];
   uint8_t rx_data[2];
   uint32_t *spi_base_address = spi_master_init(SPI0, SPI_MODE0,0);
+  
   if (spi_base_address == 0)
   {
     return false;
   }
-  tx_data[0]=adress|0x80; // tranmit adress with MSB set to 1 must be changed for power consumption
-  tx_data[1]=0;
+  tx_data[0] = adress|0x80; // tranmit adress with MSB set to 1 must be changed for power consumption
+  tx_data[1] = 0;
   
   if(!spi_master_tx_rx(spi_base_address, 2 , (const uint8_t *)tx_data, rx_data) )
     return false;
@@ -188,18 +211,19 @@ bool read_ac_value(int16_t* x_acceleration,int16_t* y_acceleration,int16_t* z_ac
   uint8_t tx_data[2];
   uint8_t rx_data[7];
   uint32_t *spi_base_address = spi_master_init(SPI0, SPI_MODE0, 0);
+  
   if (spi_base_address == 0)
   {
     return false;
   }
-  tx_data[0]=0xA8;
-  tx_data[1]=0;
+  tx_data[0] = 0xA8;
+  tx_data[1] = 0;
   if(!spi_master_tx_rx(spi_base_address, 7 , (const uint8_t *)tx_data, rx_data) )
     return false;
   
-  *x_acceleration=(((int16_t)rx_data[2])<<8)+(int16_t)rx_data[1];
-  *y_acceleration=(((int16_t)rx_data[4])<<8)+(int16_t)rx_data[3];
-  *z_acceleration=(((int16_t)rx_data[6])<<8)+(int16_t)rx_data[5];
+  *x_acceleration = (((int16_t)rx_data[2]) << 8) + (int16_t)rx_data[1];
+  *y_acceleration = (((int16_t)rx_data[4]) << 8) + (int16_t)rx_data[3];
+  *z_acceleration = (((int16_t)rx_data[6]) << 8) + (int16_t)rx_data[5];
   
   return true;
 }

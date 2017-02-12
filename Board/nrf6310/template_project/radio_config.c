@@ -1,58 +1,24 @@
-/* Copyright (c) 2009 Nordic Semiconductor. All Rights Reserved.
- *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
- *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
- *
- */
+/****************************************************** 
+ * File : radio_config.c                              *
+ * Author : Vincent FORTINEAU, Cyril RIOCHE, Fabian   *
+ *          LAPOTRE                                   *
+ *                                                    *
+ * This file contains all the functions about the RF  *
+ * transmission, used to communicate the acceleration *
+ * data to the front wheel.                           *
+ *                                                    *
+ ******************************************************/
+
+
+/************************
+*       INCLUDES        *
+*************************/
 
 #include "radio_config.h"
-#include "nrf_gpio.h"
-#include "nrf_delay.h"
 
-#define PACKET0_S1_SIZE                  (0UL)  //!< S1 size in bits
-#define PACKET0_S0_SIZE                  (0UL)  //!< S0 size in bits
-#define PACKET0_PAYLOAD_SIZE             (0UL)  //!< payload size in bits
-#define PACKET1_BASE_ADDRESS_LENGTH      (4UL)  //!< base address length in bytes
-#define PACKET1_STATIC_LENGTH            (11UL)  //!< static length in bytes
-#define PACKET1_PAYLOAD_SIZE             (11UL)  //!< payload size in bits
-#define PIN_BUCK 0
-
-/**
- * Swap / mirror bits in a byte.
- *
- * output_bit_7 = input_bit_0
- * output_bit_6 = input_bit_1
- *           :
- * output_bit_0 = input_bit_7
- *
- * @param inp is the input byte to be swapped.
- *
- * @return
- * Returns the swapped / mirrored input byte.
- */
-static uint8_t swap_bits(uint8_t inp);
-
-/**
- * Swap bytes in a 32 bit word.
- *
- * The bytes are swapped as follows:
- *
- * output[31:24] = input[7:0] 
- * output[23:16] = input[15:8]
- * output[15:8]  = input[23:16]
- * output[7:0]   = input[31:24]
- *
- * @param input is the input word to be swapped.
- *
- * @return
- * Returns the swapped input byte.
- */
-static uint32_t swap_bytes(uint32_t input);
+/************************
+*       FUNCTIONS       *
+*************************/
 
 static uint8_t swap_bits(uint8_t inp)
 {
@@ -80,15 +46,6 @@ static uint32_t swap_bytes(uint32_t inp)
     return retval;
 }
 
-/*
-  To configure this example to work with previous generation nRF24L series devices, you need to configure the radio address.
-  For example, if this is what you have in the firmware of the nRF24L series device:
-  
-  uint8_t tx_address[5] = { 0xC0, 0x01, 0x23, 0x45, 0x67 };
-  hal_nrf_set_address(HAL_NRF_TX, tx_address);
-  
-  the radio_configure() function below will then be able to receive the packets.
-*/
 
 void radio_configure()
 {
@@ -174,6 +131,7 @@ void rf_send(uint8_t *packet)
 
   nrf_gpio_pin_clear(PIN_BUCK);
   nrf_delay_us(700);
+  
   // Start transmission and wait for end of packet.
   NRF_RADIO->TASKS_START = 1U;
 
@@ -184,9 +142,9 @@ void rf_send(uint8_t *packet)
   }
 
   nrf_gpio_pin_clear(PIN_BUCK);
-  NRF_RADIO->EVENTS_DISABLED = 0U;
-
+  
   // Disable radio
+  NRF_RADIO->EVENTS_DISABLED = 0U;
   NRF_RADIO->TASKS_DISABLE = 1U;
 
   while(NRF_RADIO->EVENTS_DISABLED == 0U)

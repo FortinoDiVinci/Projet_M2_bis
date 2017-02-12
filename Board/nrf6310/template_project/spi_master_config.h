@@ -1,16 +1,20 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
- *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
- *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
- *
- */
+/****************************************************** 
+ * File : spi_master_config.h                         *
+ * Author : Vincent FORTINEAU, Cyril RIOCHE, Fabian   *
+ *          LAPOTRE                                   *
+ *                                                    *
+ * This file contains all the functions about the SPI *
+ * transmission, used initialize the IMU and get the  *
+ * acceleratios values                                *
+ *                                                    *
+ ******************************************************/
 #ifndef SPI_MASTER_CONFIG_H
 #define SPI_MASTER_CONFIG_H
+
+
+/************************
+*       DEFINES         *
+*************************/
 
 #define SPI_OPERATING_FREQUENCY  ( 0x02000000UL << (uint32_t)Freq_1Mbps )  /*!< Slave clock frequency. */
 
@@ -27,6 +31,7 @@
 #define SPI_PSELSS1               28   /*!< GPIO pin number for Slave Select           */
 
 //#define DEBUG
+
 #ifdef DEBUG
 #define DEBUG_EVENT_READY_PIN0    10    /*!< when DEBUG is enabled, this GPIO pin is toggled everytime READY_EVENT is set for SPI0, no toggling means something has gone wrong */
 #define DEBUG_EVENT_READY_PIN1    11    /*!< when DEBUG is enabled, this GPIO pin is toggled everytime READY_EVENT is set for SPI1, no toggling means something has gone wrong */
