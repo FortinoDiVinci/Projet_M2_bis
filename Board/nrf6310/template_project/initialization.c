@@ -67,7 +67,7 @@
   
   /* Configuration of BUCK pin */
   nrf_gpio_cfg_output(PIN_BUCK);
-  nrf_gpio_pin_clear(PIN_BUCK); // we will change it when the consuption will be ok
+  nrf_gpio_pin_set(PIN_BUCK); // we will change it when the consuption will be ok
 
   /* Configuration of all other unused pins */
   nrf_gpio_cfg_output(4);
@@ -114,30 +114,30 @@
 
    void timerVib_init()
 {
-  NRF_TIMER2->TASKS_STOP = 1;
-  NRF_TIMER2->PRESCALER = 0x9UL;                                                  // initiliaze the prescaler to the value 9
-  NRF_TIMER2->MODE = TIMER_MODE_MODE_Timer << TIMER_MODE_MODE_Pos;                // Mode timer
-  NRF_TIMER2->BITMODE = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos; // Mode 16 bits
-  NRF_TIMER2->CC[0] = 0x1E85;                                                     //500 ms period
-  NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE0_Enabled << TIMER_INTENSET_COMPARE0_Pos ;
-  NRF_TIMER2->TASKS_CLEAR = 1;
-  NRF_TIMER2->EVENTS_COMPARE[0] = 0;
-  NRF_TIMER2->SHORTS = TIMER_SHORTS_COMPARE0_CLEAR_Enabled << TIMER_SHORTS_COMPARE0_CLEAR_Pos;
+  NRF_TIMER1->TASKS_STOP = 1;
+  NRF_TIMER1->PRESCALER = 0x9UL;                                                  // initiliaze the prescaler to the value 9
+  NRF_TIMER1->MODE = TIMER_MODE_MODE_Timer << TIMER_MODE_MODE_Pos;                // Mode timer
+  NRF_TIMER1->BITMODE = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos; // Mode 16 bits
+  NRF_TIMER1->CC[0] = 0x1E85;                                                     //500 ms period
+  NRF_TIMER1->INTENSET = TIMER_INTENSET_COMPARE0_Enabled << TIMER_INTENSET_COMPARE0_Pos ;
+  NRF_TIMER1->TASKS_CLEAR = 1;
+  NRF_TIMER1->EVENTS_COMPARE[0] = 0;
+  NRF_TIMER1->SHORTS = TIMER_SHORTS_COMPARE0_CLEAR_Enabled << TIMER_SHORTS_COMPARE0_CLEAR_Pos;
   
 }
 
 
 void timerSPI_init()
 {
-  NRF_TIMER1->TASKS_STOP = 1;
-  NRF_TIMER1->PRESCALER = 0x9UL;                                                        // initiliaze the prescaler to the value 9
-  NRF_TIMER1->MODE = TIMER_MODE_MODE_Timer << TIMER_MODE_MODE_Pos;                      // Mode timer
-  NRF_TIMER1->BITMODE = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos;       // Mode 16 bits
-  NRF_TIMER1->CC[0] = 0x139;                                                            // 20 ms period
-  NRF_TIMER1->INTENSET = TIMER_INTENSET_COMPARE0_Enabled << TIMER_INTENSET_COMPARE0_Pos ;
-  NRF_TIMER1->TASKS_CLEAR = 1;
-  NRF_TIMER1->EVENTS_COMPARE[0] = 0;
-  NRF_TIMER1->SHORTS = TIMER_SHORTS_COMPARE0_CLEAR_Enabled<< TIMER_SHORTS_COMPARE0_CLEAR_Pos;
+  NRF_TIMER2->TASKS_STOP = 1;
+  NRF_TIMER2->PRESCALER = 0x9UL;                                                        // initiliaze the prescaler to the value 9
+  NRF_TIMER2->MODE = TIMER_MODE_MODE_Timer << TIMER_MODE_MODE_Pos;                      // Mode timer
+  NRF_TIMER2->BITMODE = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos;       // Mode 16 bits
+  NRF_TIMER2->CC[0] = 0x139;                                                            // 20 ms period
+  NRF_TIMER2->INTENSET = TIMER_INTENSET_COMPARE0_Enabled << TIMER_INTENSET_COMPARE0_Pos ;
+  NRF_TIMER2->TASKS_CLEAR = 1;
+  NRF_TIMER2->EVENTS_COMPARE[0] = 0;
+  NRF_TIMER2->SHORTS = TIMER_SHORTS_COMPARE0_CLEAR_Enabled<< TIMER_SHORTS_COMPARE0_CLEAR_Pos;
   
 }
 void timerADC_init()

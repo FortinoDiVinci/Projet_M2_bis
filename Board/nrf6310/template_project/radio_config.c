@@ -50,7 +50,7 @@ static uint32_t swap_bytes(uint32_t inp)
 void radio_configure()
 {
   // Radio config
-  NRF_RADIO->TXPOWER = (RADIO_TXPOWER_TXPOWER_Neg20dBm << RADIO_TXPOWER_TXPOWER_Pos);
+  NRF_RADIO->TXPOWER = (RADIO_TXPOWER_TXPOWER_Neg12dBm << RADIO_TXPOWER_TXPOWER_Pos);
   NRF_RADIO->FREQUENCY = 7UL;           // Frequency bin 7, 2407MHz
   NRF_RADIO->MODE = (RADIO_MODE_MODE_Nrf_250Kbit << RADIO_MODE_MODE_Pos);
 
@@ -121,6 +121,10 @@ void rf_send(uint8_t *packet)
   packet[0] = 0x05;                         // Set Length to 5 bytes
 
   NRF_RADIO->EVENTS_READY = 0U;
+  
+  //enable buck
+  nrf_gpio_pin_clear(PIN_BUCK);
+  nrf_delay_us(700);
     
   // Enable radio and wait for ready
   NRF_RADIO->TASKS_TXEN = 1;
@@ -128,20 +132,14 @@ void rf_send(uint8_t *packet)
   while (NRF_RADIO->EVENTS_READY == 0U)
   {
   }
-
-  nrf_gpio_pin_clear(PIN_BUCK);
-  nrf_delay_us(700);
   
   // Start transmission and wait for end of packet.
   NRF_RADIO->TASKS_START = 1U;
-
   NRF_RADIO->EVENTS_END = 0U;
   
   while(NRF_RADIO->EVENTS_END == 0U) // Wait for end
   {
   }
-
-  nrf_gpio_pin_clear(PIN_BUCK);
   
   // Disable radio
   NRF_RADIO->EVENTS_DISABLED = 0U;
@@ -150,4 +148,7 @@ void rf_send(uint8_t *packet)
   while(NRF_RADIO->EVENTS_DISABLED == 0U)
   {
   }
+  
+   // Diseable buck
+  nrf_gpio_pin_set(PIN_BUCK);
 }

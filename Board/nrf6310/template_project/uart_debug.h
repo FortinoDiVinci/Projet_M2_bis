@@ -9,8 +9,9 @@
  ******************************************************/
 
 
-#ifndef DEBUG_UART_H
-#define DEBUG_UART_H
+
+#ifndef SIMPLE_UART_H
+#define SIMPLE_UART_H
 
 /************************
 *       INCLUDES        *
@@ -22,11 +23,7 @@
 #include "nrf_gpio.h"
 #include "nrf.h"
 
-/************************
-*    GLOBAL VARIABLES   *
-*************************/
 
-const char *h="0123456789";
 
 /************************
 *       FUNCTIONS       *

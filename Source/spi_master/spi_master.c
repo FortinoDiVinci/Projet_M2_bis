@@ -159,9 +159,20 @@ void init_IMU(void)
   
   write_data(0x3F,0X10);  // set accelrometre (get mesure : 52 hz; scall:+-16g filter :50hz)
   //write_data(0x33,0x10);     // set accelerometre (get mesure: 52hz scall:+-2g filter :50hz)
-  read_data(0x10);        // check value 
-  write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
+  //write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
   
+}
+
+void IMU_OFF(void)
+{
+  write_data(0x10,0x00);  // disable accelerometre
+  write_data(0x11,0x00);  // disable gyroscope
+}
+
+void IMU_ON(void)
+{
+  write_data(0x10,0x15);  // disable accelerometre
+  write_data(0x11,0x15);  // disable gyroscope
 }
 
 bool write_data(uint8_t data, uint8_t adress )

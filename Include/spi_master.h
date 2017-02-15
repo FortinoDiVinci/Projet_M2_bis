@@ -76,6 +76,20 @@ typedef enum
 *       FUNCTIONS       *
 *************************/
 
+void IMU_ON(void);
+
+/* 
+ * enable the IMU in low power mode (52hz)
+ *
+ */
+
+void IMU_OFF(void);
+
+/* 
+ * disnable the IMU
+ *
+ */
+
 uint32_t* spi_master_init(SPIModuleNumber module_number, SPIMode mode, bool lsb_first);
 /**
  * Initializes given SPI master with given configuration.
