@@ -50,8 +50,8 @@
   NRF_UART0->PSELRXD = DEBUG_UART_RX;
   
   /* Configuration of Debug pin */
-  nrf_gpio_cfg_output(DEBUG_PIN);
-  nrf_gpio_pin_clear(DEBUG_PIN);       
+  nrf_gpio_cfg_output(LED_PIN);
+  nrf_gpio_pin_clear(LED_PIN);       
   
   /* Configuration of LED n° 2 pin */
   nrf_gpio_cfg_output(LED2);
@@ -67,7 +67,7 @@
   
   /* Configuration of BUCK pin */
   nrf_gpio_cfg_output(PIN_BUCK);
-  nrf_gpio_pin_set(PIN_BUCK); // we will change it when the consuption will be ok
+  nrf_gpio_pin_set(PIN_BUCK); 
 
   /* Configuration of all other unused pins */
   nrf_gpio_cfg_output(4);

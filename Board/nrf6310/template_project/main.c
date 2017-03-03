@@ -95,16 +95,17 @@ int main(void)
   gpiot_init();
   timerSPI_init();
   timerVib_init();
+  timerADC_init();
+  init_adc();
+  init_IMU();
+  
   #ifdef UART
   uart_config();
-  #endif
-//  timerADC_init();
-  init_IMU();
-   
+  #endif 
+  
   // Disable internal DC/DC converter
   NRF_POWER->DCDCEN = POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
   NRF_POWER->TASKS_LOWPWR = 1;
-    
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
   NVIC_EnableIRQ(GPIOTE_IRQn);
@@ -115,7 +116,19 @@ int main(void)
   /************************
   *       MAIN LOOP       *
   *************************/
-    
+
+//  nrf_gpio_pin_clear(PIN_BUCK);
+//  
+//  while(1)
+//  {
+//    uint8_t data_to_send[SIZE_PACKET];
+//    static uint8_t adc_value = 0;
+//    adc_value = start_sampling();
+//    data_to_send[2] = ID_RF;
+//    data_to_send[9] = adc_value;
+//    rf_send(data_to_send);
+//    __NOP();
+//  }
   while (true)
   {
     if (start == 0)
@@ -133,17 +146,24 @@ int main(void)
         NRF_TIMER1->TASKS_SHUTDOWN = 1;
         NVIC_DisableIRQ(TIMER1_IRQn);
         
+          //disable low battery
+        NRF_TIMER0->TASKS_STOP = 1;
+        NRF_TIMER0->TASKS_SHUTDOWN = 1;
+        NVIC_DisableIRQ(TIMER0_IRQn); 
+        
+        //disable buck
         nrf_gpio_pin_set(PIN_BUCK);
         
         /* REACTIVATING PORT EVENT DETECTION */
         NVIC_EnableIRQ(GPIOTE_IRQn);
         
+        //NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
         /* SLEEP */
         __WFI();
         
 //        __WFE();
 //        __WFE();
-//        NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
+        
     }
     else
     {
@@ -151,7 +171,7 @@ int main(void)
       
       //enable buck
       nrf_gpio_pin_clear(PIN_BUCK);
-      nrf_delay_us(700);
+      //nrf_delay_us(700);
       
       /* ACTIVATION OF TIMER 1 & 2 */
       
@@ -190,6 +210,7 @@ void GPIOTE_IRQHandler(void)
   #endif
   start = 1;
   
+  // enable the IMU to read values
   IMU_ON();
 
   // Event causing the interrupt must be cleared
@@ -222,6 +243,8 @@ void TIMER1_IRQHandler(void)
   {
     sleep_count = 0;
     start = 0;
+    
+    // disable the IMU to save battery
     IMU_OFF();
     
     if((NRF_TIMER1->EVENTS_COMPARE[0]==1) && (NRF_TIMER1->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
@@ -240,30 +263,25 @@ void TIMER1_IRQHandler(void)
 
 void TIMER0_IRQHandler(void)
 {
-  static uint8_t adc_value;
-  static bool LED_on = 0;
-  adc_value = start_sampling();
-  
-  if(adc_value < 0xCF)//D5) // 3,50 V
+  static bool LED_on = 0; 
+  if(!LED_on)
   {
-    NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 1 hour to 10 s
-    if(!LED_on)
-    {
-      NRF_TIMER0->CC[1] = 0x00C3; // timer is set from 10 s to 100 ms
-      LED_on = 1;
-    }
-    else
-    {
-      NRF_TIMER0->CC[1] = 0x004C4B; // timer is set from 100 ms to 10 s
-      LED_on = 0;
-    }
+    NRF_TIMER0->TASKS_STOP = 1;
+    NRF_TIMER0->CC[1] = 0x00C3; // timer is set from 10 s to 100 ms
+    NRF_TIMER0->TASKS_START = 1;
+    LED_on = 1;
+    nrf_gpio_pin_set(LED_PIN);
   }
   else
   {
-    NRF_TIMER0->CC[1] = 0x006B49D1;   // timer is set to 1 hour
+    NRF_TIMER0->TASKS_STOP = 1;
+    NRF_TIMER0->CC[1] = 0x02FAEE; // timer is set from 100 ms to 10 s
+    NRF_TIMER0->TASKS_START = 1;
+    LED_on = 0;
+    nrf_gpio_pin_clear(LED_PIN);
   }
   
-   if((NRF_TIMER0->EVENTS_COMPARE[1] == 1) && (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE1_Msk))
+  if((NRF_TIMER0->EVENTS_COMPARE[1] == 1) && (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE1_Msk))
   {
     NRF_TIMER0->EVENTS_COMPARE[1] = 0;
     NRF_TIMER0->TASKS_START = 1;
@@ -286,6 +304,24 @@ void TIMER2_IRQHandler(void)
  
   if(sample_count == MAX_LENGTH_SAMPLE)
   {
+    static uint8_t adc_value;
+    static uint16_t adc_count=0;
+    adc_count++; 
+    if(adc_count==300)
+    {
+      adc_value = start_sampling();
+      if(adc_value <= 0xFF)//D5) // 3,50 V
+      {
+        NRF_TIMER0->TASKS_START = 1;
+        NVIC_EnableIRQ(TIMER0_IRQn);
+      }
+      else
+      {
+        NRF_TIMER0->TASKS_SHUTDOWN = 1;
+        NVIC_DisableIRQ(TIMER0_IRQn);   
+      }
+      adc_count=0;
+    }
     uint16_t x_acc = 0;
     uint16_t y_acc = 0;
     uint16_t z_acc = 0;
@@ -304,8 +340,8 @@ void TIMER2_IRQHandler(void)
     #ifdef UART
     uart_putstring("sending data\r\n");
     #endif
-    data_to_send[0] = 0x06;      // Set Length to 6 bytes
-    data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
+//    data_to_send[0] = 0x07;      // Set Length to 6 bytes
+//    data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
     data_to_send[2] = ID_RF;
     data_to_send[3] = (uint8_t) x_acc;
     data_to_send[4] = (uint8_t) (x_acc >> 8);
@@ -313,10 +349,10 @@ void TIMER2_IRQHandler(void)
     data_to_send[6] = (uint8_t) (y_acc >> 8);
     data_to_send[7] = (uint8_t) z_acc;
     data_to_send[8] = (uint8_t) (z_acc>>8);
+    data_to_send[9] = adc_value;
     rf_send(data_to_send);
   }  
-  
-  
+    
   if((NRF_TIMER2->EVENTS_COMPARE[0]==1) && (NRF_TIMER2->INTENSET & TIMER_INTENSET_COMPARE0_Msk))
   {
     NRF_TIMER2->EVENTS_COMPARE[0]=0;

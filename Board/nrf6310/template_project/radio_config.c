@@ -118,7 +118,7 @@ void rf_send(uint8_t *packet)
   NRF_RADIO->PACKETPTR = (uint32_t)packet;
 
   packet[1] = 0xFF;                         // Write 1's to S1, for debug purposes
-  packet[0] = 0x05;                         // Set Length to 5 bytes
+  packet[0] = 0x06;                         // Set Length to 5 bytes
 
   NRF_RADIO->EVENTS_READY = 0U;
   

@@ -35,12 +35,11 @@ void init_adc()
 }
 
 uint8_t start_sampling()
-
 {
   nrf_gpio_pin_set(PIN_ADC_ON);
   
-  __NOP();//ad a delay
-  
+  nrf_delay_us(750);
+    
   while(NRF_ADC->BUSY);
   
   NRF_ADC->TASKS_START = 1U;
@@ -49,6 +48,7 @@ uint8_t start_sampling()
   while(NRF_ADC->EVENTS_END==0U)
   {
   }
+  
   nrf_gpio_pin_clear(PIN_ADC_ON);
   
   return (uint8_t) (0x0000FF & NRF_ADC->RESULT); 
