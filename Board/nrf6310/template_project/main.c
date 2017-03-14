@@ -151,18 +151,18 @@ int main(void)
         NRF_TIMER0->TASKS_SHUTDOWN = 1;
         NVIC_DisableIRQ(TIMER0_IRQn); 
         
-        //disable buck
-        nrf_gpio_pin_set(PIN_BUCK);
+//        //disable buck
+//        nrf_gpio_pin_set(PIN_BUCK);
         
         /* REACTIVATING PORT EVENT DETECTION */
         NVIC_EnableIRQ(GPIOTE_IRQn);
         
         //NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
         /* SLEEP */
-        __WFI();
         
-//        __WFE();
-//        __WFE();
+        nrf_gpio_pin_set(PIN_BUCK);
+        __WFI();
+        nrf_gpio_pin_clear(PIN_BUCK);
         
     }
     else
@@ -170,8 +170,8 @@ int main(void)
 //      uart_putstring("start = 1\r\n");
       
       //enable buck
-      nrf_gpio_pin_clear(PIN_BUCK);
-      //nrf_delay_us(700);
+//      nrf_gpio_pin_clear(PIN_BUCK);
+//      //nrf_delay_us(700);
       
       /* ACTIVATION OF TIMER 1 & 2 */
       
@@ -187,7 +187,9 @@ int main(void)
       while( /* read_acc_value == 1)*/ start == 1) 
       {
         /* SLEEP */
-        __WFI();
+        nrf_gpio_pin_set(PIN_BUCK);
+        __WFI();     
+        nrf_gpio_pin_clear(PIN_BUCK);
         #ifdef UART  
         uart_putstring("read_acc_value = 1\r\n");
         #endif
@@ -209,6 +211,8 @@ void GPIOTE_IRQHandler(void)
   uart_putstring("Inside GPIOTE_IRQHandler\r\n");
   #endif
   start = 1;
+  
+  nrf_gpio_pin_clear(PIN_BUCK);
   
   // enable the IMU to read values
   IMU_ON();
@@ -340,16 +344,18 @@ void TIMER2_IRQHandler(void)
     #ifdef UART
     uart_putstring("sending data\r\n");
     #endif
-//    data_to_send[0] = 0x07;      // Set Length to 6 bytes
-//    data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
-    data_to_send[2] = ID_RF;
-    data_to_send[3] = (uint8_t) x_acc;
-    data_to_send[4] = (uint8_t) (x_acc >> 8);
-    data_to_send[5] = (uint8_t) y_acc;
-    data_to_send[6] = (uint8_t) (y_acc >> 8);
-    data_to_send[7] = (uint8_t) z_acc;
-    data_to_send[8] = (uint8_t) (z_acc>>8);
-    data_to_send[9] = adc_value;
+    data_to_send[0] = 0x07;      // Set Length to 6 bytes
+    data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
+    data_to_send[2] = 0xFF;
+    data_to_send[3] = 0xFF;
+    data_to_send[4] = ID_RF;
+    data_to_send[5] = (uint8_t) x_acc;
+    data_to_send[6] = (uint8_t) (x_acc >> 8);
+    data_to_send[7] = (uint8_t) y_acc;
+    data_to_send[8] = (uint8_t) (y_acc >> 8);
+    data_to_send[9] = (uint8_t) z_acc;
+    data_to_send[10] = (uint8_t) (z_acc>>8);
+    data_to_send[11] = adc_value;
     rf_send(data_to_send);
   }  
     

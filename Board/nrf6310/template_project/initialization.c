@@ -67,7 +67,7 @@
   
   /* Configuration of BUCK pin */
   nrf_gpio_cfg_output(PIN_BUCK);
-  nrf_gpio_pin_set(PIN_BUCK); 
+  nrf_gpio_pin_clear(PIN_BUCK); 
 
   /* Configuration of all other unused pins */
   nrf_gpio_cfg_output(4);

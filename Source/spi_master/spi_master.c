@@ -165,14 +165,14 @@ void init_IMU(void)
 
 void IMU_OFF(void)
 {
-  write_data(0x10,0x00);  // disable accelerometre
-  write_data(0x11,0x00);  // disable gyroscope
+  write_data(0x00,0x10);  // disable accelerometre
+  write_data(0x00,0x11);  // disable gyroscope
 }
 
 void IMU_ON(void)
 {
-  write_data(0x10,0x15);  // disable accelerometre
-  write_data(0x11,0x15);  // disable gyroscope
+  write_data(0x15,0x10);  // disable accelerometre
+  write_data(0x15,0x11);  // disable gyroscope
 }
 
 bool write_data(uint8_t data, uint8_t adress )

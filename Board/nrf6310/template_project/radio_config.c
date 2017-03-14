@@ -149,6 +149,8 @@ void rf_send(uint8_t *packet)
   {
   }
   
+  nrf_gpio_pin_toggle(2);
+  
    // Diseable buck
-  nrf_gpio_pin_set(PIN_BUCK);
+//  nrf_gpio_pin_set(PIN_BUCK);
 }
