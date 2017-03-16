@@ -23,6 +23,11 @@
 
  void gpiot_init(void)
 {
+  
+   /* Configuration of BUCK pin */
+  nrf_gpio_cfg_output(PIN_BUCK);
+  nrf_gpio_pin_clear(PIN_BUCK);
+  nrf_delay_us(700);
 //  *(uint32_t *)0x40000504 = 0xC007FFDF; // Workaround for PAN_028 rev1.1 anomaly 23 - System: Manual setup is required to enable use of peripherals
 
 
@@ -65,9 +70,7 @@
   nrf_gpio_cfg_output(LED);
   nrf_gpio_pin_clear(LED);
   
-  /* Configuration of BUCK pin */
-  nrf_gpio_cfg_output(PIN_BUCK);
-  nrf_gpio_pin_clear(PIN_BUCK); 
+ 
 
   /* Configuration of all other unused pins */
   nrf_gpio_cfg_output(4);

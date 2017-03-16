@@ -164,6 +164,7 @@ int main(void)
         __WFI();
         nrf_gpio_pin_clear(PIN_BUCK);
         
+        
     }
     else
     {
@@ -304,7 +305,7 @@ void TIMER2_IRQHandler(void)
   read_ac_value(&x_acc_samples[sample_count], &y_acc_samples[sample_count], &z_acc_samples[sample_count]);
   sample_count += 1;
   
-  nrf_gpio_pin_set(PIN_BUCK);
+  //nrf_gpio_pin_set(PIN_BUCK);
  
   if(sample_count == MAX_LENGTH_SAMPLE)
   {
