@@ -117,7 +117,7 @@ int main(void)
   *       MAIN LOOP       *
   *************************/
 
-//  nrf_gpio_pin_clear(PIN_BUCK);
+//  nrf_gpio_pin_clear(BUCK_ON);
 //  
 //  while(1)
 //  {
@@ -152,7 +152,7 @@ int main(void)
         NVIC_DisableIRQ(TIMER0_IRQn); 
         
 //        //disable buck
-//        nrf_gpio_pin_set(PIN_BUCK);
+//        nrf_gpio_pin_set(BUCK_ON);
         
         /* REACTIVATING PORT EVENT DETECTION */
         NVIC_EnableIRQ(GPIOTE_IRQn);
@@ -160,9 +160,9 @@ int main(void)
         //NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
         /* SLEEP */
         
-        nrf_gpio_pin_set(PIN_BUCK);
+        nrf_gpio_pin_set(BUCK_ON);
         __WFI();
-        nrf_gpio_pin_clear(PIN_BUCK);
+        nrf_gpio_pin_clear(BUCK_ON);
         
         
     }
@@ -171,7 +171,7 @@ int main(void)
 //      uart_putstring("start = 1\r\n");
       
       //enable buck
-//      nrf_gpio_pin_clear(PIN_BUCK);
+//      nrf_gpio_pin_clear(BUCK_ON);
 //      //nrf_delay_us(700);
       
       /* ACTIVATION OF TIMER 1 & 2 */
@@ -188,9 +188,9 @@ int main(void)
       while( /* read_acc_value == 1)*/ start == 1) 
       {
         /* SLEEP */
-        nrf_gpio_pin_set(PIN_BUCK);
+        nrf_gpio_pin_set(BUCK_ON);
         __WFI();     
-        nrf_gpio_pin_clear(PIN_BUCK);
+        nrf_gpio_pin_clear(BUCK_ON);
         #ifdef UART  
         uart_putstring("read_acc_value = 1\r\n");
         #endif
@@ -213,7 +213,7 @@ void GPIOTE_IRQHandler(void)
   #endif
   start = 1;
   
-  nrf_gpio_pin_clear(PIN_BUCK);
+  nrf_gpio_pin_clear(BUCK_ON);
   
   // enable the IMU to read values
   IMU_ON();
@@ -275,7 +275,6 @@ void TIMER0_IRQHandler(void)
     NRF_TIMER0->CC[1] = 0x00C3; // timer is set from 10 s to 100 ms
     NRF_TIMER0->TASKS_START = 1;
     LED_on = 1;
-    nrf_gpio_pin_set(LED_PIN);
   }
   else
   {
@@ -283,7 +282,6 @@ void TIMER0_IRQHandler(void)
     NRF_TIMER0->CC[1] = 0x02FAEE; // timer is set from 100 ms to 10 s
     NRF_TIMER0->TASKS_START = 1;
     LED_on = 0;
-    nrf_gpio_pin_clear(LED_PIN);
   }
   
   if((NRF_TIMER0->EVENTS_COMPARE[1] == 1) && (NRF_TIMER0->INTENSET & TIMER_INTENSET_COMPARE1_Msk))
@@ -299,13 +297,13 @@ void TIMER2_IRQHandler(void)
   uart_putstring("Inside TIMER2 : doing acc sampling\r\n");
   #endif
   //enable buck
-  nrf_gpio_pin_clear(PIN_BUCK);
+  nrf_gpio_pin_clear(BUCK_ON);
   nrf_delay_us(700);
   
   read_ac_value(&x_acc_samples[sample_count], &y_acc_samples[sample_count], &z_acc_samples[sample_count]);
   sample_count += 1;
   
-  //nrf_gpio_pin_set(PIN_BUCK);
+  //nrf_gpio_pin_set(BUCK_ON);
  
   if(sample_count == MAX_LENGTH_SAMPLE)
   {

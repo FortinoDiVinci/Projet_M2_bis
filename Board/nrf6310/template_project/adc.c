@@ -36,7 +36,7 @@ void init_adc()
 
 uint8_t start_sampling()
 {
-  nrf_gpio_pin_set(PIN_ADC_ON);
+  nrf_gpio_pin_set(BAT_LVL_ON);
   
   nrf_delay_us(750);
     
@@ -49,7 +49,7 @@ uint8_t start_sampling()
   {
   }
   
-  nrf_gpio_pin_clear(PIN_ADC_ON);
+  nrf_gpio_pin_clear(BAT_LVL_ON);
   
   return (uint8_t) (0x0000FF & NRF_ADC->RESULT); 
 }

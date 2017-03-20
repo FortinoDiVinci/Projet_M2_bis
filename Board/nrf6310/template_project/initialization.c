@@ -22,97 +22,94 @@
 *************************/
 
  void gpiot_init(void)
-{
-  
+{ 
    /* Configuration of BUCK pin */
-  nrf_gpio_cfg_output(PIN_BUCK);
-  nrf_gpio_pin_clear(PIN_BUCK);
-  nrf_delay_us(700);
-//  *(uint32_t *)0x40000504 = 0xC007FFDF; // Workaround for PAN_028 rev1.1 anomaly 23 - System: Manual setup is required to enable use of peripherals
-
-
+  nrf_gpio_cfg_output(BUCK_ON);
+  nrf_gpio_pin_clear(BUCK_ON);
+  nrf_delay_us(700);    
+ 
+  
+  /* Configuration of all other pins 
+   *
+   * SPI pins are initialized in the 
+   * spi_master_config file           */
+  
+  
+  // BUCK
+  nrf_gpio_cfg_output(1);                       // unused
+  nrf_gpio_cfg_output(LED);
+  nrf_gpio_cfg_output(INT2_MEMS);
+  // BAT_LVL (Analog5)
+  nrf_gpio_cfg_output(INT1_MEMS);
+  // VIB (vibrasensor)
+  nrf_gpio_cfg_output(7);                       // unused
+  nrf_gpio_cfg_output(8);                       // unused
+  nrf_gpio_cfg_output(9);                       // unused
+  nrf_gpio_cfg_output(10);                      // unused
+  nrf_gpio_cfg_output(11);                      // unused
+  nrf_gpio_cfg_output(12);                      // unused
+  nrf_gpio_cfg_output(13);                      // unused
+  nrf_gpio_cfg_output(14);                      // unused
+  nrf_gpio_cfg_output(15);                      // unused
+  nrf_gpio_cfg_output(16);                      // unused
+  // SPI SEL
+  nrf_gpio_cfg_output(18);                      // unused
+  // SPI SCK
+  nrf_gpio_cfg_output(20);                      // unused
+  // SPI MISO
+  nrf_gpio_cfg_output(22);                      // unused
+  // SPI MOSI
+  nrf_gpio_cfg_output(BAT_LVL_ON);
+  nrf_gpio_cfg_output(25);                      // unused
+  nrf_gpio_cfg_output(26);                      // unused
+  nrf_gpio_cfg_output(27);                      // unused
+  nrf_gpio_cfg_output(28);                      // unused
+  nrf_gpio_cfg_output(29);                      // unused
+  nrf_gpio_cfg_output(30);                      // unused 
+  
+  
+  // BUCK
+  nrf_gpio_pin_clear(1);                       // unused
+  nrf_gpio_pin_clear(LED);
+  nrf_gpio_pin_clear(INT2_MEMS);
+  // BAT_LVL (Analog5)
+  nrf_gpio_pin_clear(INT1_MEMS);
+  // VIB (vibrasensor)
+  nrf_gpio_pin_clear(7);                       // unused
+  nrf_gpio_pin_clear(8);                       // unused
+  nrf_gpio_pin_clear(9);                       // unused
+  nrf_gpio_pin_clear(10);                      // unused
+  nrf_gpio_pin_clear(11);                      // unused
+  nrf_gpio_pin_clear(12);                      // unused
+  nrf_gpio_pin_clear(13);                      // unused
+  nrf_gpio_pin_clear(14);                      // unused
+  nrf_gpio_pin_clear(15);                      // unused
+  nrf_gpio_pin_clear(16);                      // unused
+  // SPI SEL
+  nrf_gpio_pin_clear(18);                      // unused
+  // SPI SCK
+  nrf_gpio_pin_clear(20);                      // unused
+  // SPI MISO
+  nrf_gpio_pin_clear(22);                      // unused
+  // SPI MOSI
+  nrf_gpio_pin_clear(BAT_LVL_ON);
+  nrf_gpio_pin_clear(25);                      // unused
+  nrf_gpio_pin_clear(26);                      // unused
+  nrf_gpio_pin_clear(27);                      // unused
+  nrf_gpio_pin_clear(28);                      // unused
+  nrf_gpio_pin_clear(29);                      // unused
+  nrf_gpio_pin_clear(30);                      // unused 
+  
   /* Configure GPIOTE channel Vibrations sensor to generate event when pin 6 is in a high state */
 
-  NRF_GPIO->PIN_CNF[6]=(GPIO_PIN_CNF_SENSE_High << GPIO_PIN_CNF_SENSE_Pos)
+  NRF_GPIO->PIN_CNF[VIB]=(GPIO_PIN_CNF_SENSE_High << GPIO_PIN_CNF_SENSE_Pos)
                                         | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
                                         | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
                                         | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
                                         | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
-  
-  //nrf_gpiote_event_config(0, 6, NRF_GPIOTE_POLARITY_LOTOHI);
 
   /* Enable interrupt on PORT for GPIOTE */
-  NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Enabled << GPIOTE_INTENSET_PORT_Pos;
-  //  // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
-  //NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Enabled<<GPIOTE_INTENSET_IN0_Pos;
-  
-  
-  /* Configuration of  UART pins (TX and RX) (for debugging only) */
-  
-  nrf_gpio_cfg_output(DEBUG_UART_TX);
-  nrf_gpio_cfg_input(DEBUG_UART_RX, NRF_GPIO_PIN_NOPULL);  
-  NRF_UART0->PSELTXD = DEBUG_UART_TX;
-  NRF_UART0->PSELRXD = DEBUG_UART_RX;
-  
-  /* Configuration of Debug pin */
-  nrf_gpio_cfg_output(LED_PIN);
-  nrf_gpio_pin_clear(LED_PIN);       
-  
-  /* Configuration of LED n° 2 pin */
-  nrf_gpio_cfg_output(LED2);
-  nrf_gpio_pin_clear(LED2);
-  
-  /* Configuration of ADC pin */
-  nrf_gpio_cfg_output(PIN_ADC_ON);
-  nrf_gpio_pin_clear(PIN_ADC_ON);
-  
-  /* Configuration of LED n° 1 pin */
-  nrf_gpio_cfg_output(LED);
-  nrf_gpio_pin_clear(LED);
-  
- 
-
-  /* Configuration of all other unused pins */
-  nrf_gpio_cfg_output(4);
-  nrf_gpio_cfg_output(5);
-  nrf_gpio_cfg_output(7);
-  nrf_gpio_cfg_output(12);
-  nrf_gpio_cfg_output(13);
-  nrf_gpio_cfg_output(14);
-  nrf_gpio_cfg_output(15);
-  nrf_gpio_cfg_output(16);
-  nrf_gpio_cfg_output(17);
-  nrf_gpio_cfg_output(20);
-  nrf_gpio_cfg_output(21);
-  nrf_gpio_cfg_output(22);
-  nrf_gpio_cfg_output(23);
-  nrf_gpio_cfg_output(25);
-  nrf_gpio_cfg_output(26);
-  nrf_gpio_cfg_output(27);
-  nrf_gpio_cfg_output(28);
-  nrf_gpio_cfg_output(29);
-  nrf_gpio_cfg_output(30);
-
-  nrf_gpio_pin_clear(4);
-  nrf_gpio_pin_clear(5);
-  nrf_gpio_pin_clear(7);
-  nrf_gpio_pin_clear(12);
-  nrf_gpio_pin_clear(13);
-  nrf_gpio_pin_clear(14);
-  nrf_gpio_pin_clear(15);
-  nrf_gpio_pin_clear(16);
-  nrf_gpio_pin_clear(17);
-  nrf_gpio_pin_clear(20);
-  nrf_gpio_pin_clear(21);
-  nrf_gpio_pin_clear(22);
-  nrf_gpio_pin_clear(23);
-  nrf_gpio_pin_clear(25);
-  nrf_gpio_pin_clear(26);
-  nrf_gpio_pin_clear(27);
-  nrf_gpio_pin_clear(28);
-  nrf_gpio_pin_clear(29);
-  nrf_gpio_pin_clear(30);
-  
+  NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_PORT_Enabled << GPIOTE_INTENSET_PORT_Pos; 
 }
 
    void timerVib_init()

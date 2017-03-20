@@ -31,14 +31,20 @@
 *************************/
 
 #define DELAY_MS                100        
-#define LED                     18
-#define LED2                    19
-#define BUTTON                  17
-#define PIN_BUCK                0
-#define LED_PIN                 2
-#define DEBUG_UART_RX           1
-#define DEBUG_UART_TX           3
-#define PIN_ADC_ON              24
+
+/* PINS DEFINITION */
+
+#define BUCK_ON                 0
+#define LED                     2
+#define INT2_MEMS               3
+#define BAT_LVL                 4 // Analog pin 5
+#define INT1_MEMS               5
+#define VIB                     6
+#define SEL                     17
+#define SCK                     19
+#define MISO                    21
+#define MOSI                    23
+#define BAT_LVL_ON              24
 
 /************************
 *       FUNCTIONS       *

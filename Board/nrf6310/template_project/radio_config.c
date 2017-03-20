@@ -123,7 +123,7 @@ void rf_send(uint8_t *packet)
   NRF_RADIO->EVENTS_READY = 0U;
   
   //enable buck
-  //nrf_gpio_pin_clear(PIN_BUCK);
+  //nrf_gpio_pin_clear(BUCK_ON);
   //nrf_delay_us(700);
     
   // Enable radio and wait for ready
@@ -152,5 +152,5 @@ void rf_send(uint8_t *packet)
   nrf_gpio_pin_toggle(2);
   
    // Diseable buck
-//  nrf_gpio_pin_set(PIN_BUCK);
+//  nrf_gpio_pin_set(BUCK_ON);
 }
