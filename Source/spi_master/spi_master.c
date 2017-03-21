@@ -156,10 +156,10 @@ bool spi_master_tx_rx(uint32_t *spi_base_address, uint16_t transfer_size, const 
 
 void init_IMU(void)
 {
-  
-  write_data(0x3F,0X10);  // set accelrometre (get mesure : 52 hz; scall:+-16g filter :50hz)
+  write_data(0x34,0X10);  // set accelrometre (get mesure : 52 hz; scall:+-16g filter :50hz)
   //write_data(0x33,0x10);     // set accelerometre (get mesure: 52hz scall:+-2g filter :50hz)
-  //write_data(0x10,0x15);  // disable high-performance mode for accelerometre 
+  write_data(0x10,0x15);  // disable high-performance mode for accelerometre
+  write_data(0x80,0x16);
   
 }
 
@@ -171,8 +171,8 @@ void IMU_OFF(void)
 
 void IMU_ON(void)
 {
-  write_data(0x15,0x10);  // disable accelerometre
-  write_data(0x15,0x11);  // disable gyroscope
+  write_data(0x34,0x10);  // disable accelerometre
+  write_data(0x30,0x11);  // disable gyroscope
 }
 
 bool write_data(uint8_t data, uint8_t adress )
@@ -187,6 +187,7 @@ bool write_data(uint8_t data, uint8_t adress )
   if (spi_base_address == 0)
   {
     return false;
+    
   }
   
   tx_data[0] = adress&0x7F; // tranmit adress with MSB set to 0 must be changed for power consumption

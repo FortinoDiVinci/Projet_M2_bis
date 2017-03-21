@@ -36,7 +36,7 @@
 *       DEFINES         *
 *************************/
 
-#define MAX_LENGTH_SAMPLE       10
+#define MAX_LENGTH_SAMPLE       5
 #define INC                     4
 #define DEC                     1
 #define THRESH                  20
@@ -99,36 +99,34 @@ int main(void)
   init_adc();
   init_IMU();
   
-  #ifdef UART
-  uart_config();
-  #endif 
-  
   // Disable internal DC/DC converter
   NRF_POWER->DCDCEN = POWER_DCDCEN_DCDCEN_Disabled<<POWER_DCDCEN_DCDCEN_Pos;
   NRF_POWER->TASKS_LOWPWR = 1;
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
-  NVIC_EnableIRQ(GPIOTE_IRQn);
-  #ifdef UART
-  uart_putstring("Start\r\n");
-  #endif
+  ////////NVIC_EnableIRQ(GPIOTE_IRQn);
     
   /************************
   *       MAIN LOOP       *
   *************************/
 
 //  nrf_gpio_pin_clear(BUCK_ON);
-//  
-//  while(1)
-//  {
-//    uint8_t data_to_send[SIZE_PACKET];
-//    static uint8_t adc_value = 0;
-//    adc_value = start_sampling();
-//    data_to_send[2] = ID_RF;
-//    data_to_send[9] = adc_value;
-//    rf_send(data_to_send);
-//    __NOP();
-//  }
+// 
+  
+  NRF_TIMER2->TASKS_START = 1;
+  NVIC_EnableIRQ(TIMER2_IRQn);
+  //IMU_ON();
+
+  write_data(0x3F,0X10);
+  write_data(0xA4,0x17);
+  write_data(0x10,0X58);
+  
+  while(1)
+  {
+    __WFI();
+  }
+  
+  
   while (true)
   {
     if (start == 0)
@@ -162,9 +160,7 @@ int main(void)
         
         nrf_gpio_pin_set(BUCK_ON);
         __WFI();
-        nrf_gpio_pin_clear(BUCK_ON);
-        
-        
+        nrf_gpio_pin_clear(BUCK_ON);       
     }
     else
     {
@@ -293,9 +289,6 @@ void TIMER0_IRQHandler(void)
 
 void TIMER2_IRQHandler(void)
 {
-  #ifdef UART
-  uart_putstring("Inside TIMER2 : doing acc sampling\r\n");
-  #endif
   //enable buck
   nrf_gpio_pin_clear(BUCK_ON);
   nrf_delay_us(700);

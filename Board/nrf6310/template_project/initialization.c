@@ -38,9 +38,9 @@
   // BUCK
   nrf_gpio_cfg_output(1);                       // unused
   nrf_gpio_cfg_output(LED);
-  nrf_gpio_cfg_output(INT2_MEMS);
+  nrf_gpio_cfg_input(INT2_MEMS,NRF_GPIO_PIN_NOPULL);
   // BAT_LVL (Analog5)
-  nrf_gpio_cfg_output(INT1_MEMS);
+  nrf_gpio_cfg_input(INT1_MEMS,NRF_GPIO_PIN_NOPULL);
   // VIB (vibrasensor)
   nrf_gpio_cfg_output(7);                       // unused
   nrf_gpio_cfg_output(8);                       // unused
@@ -52,13 +52,14 @@
   nrf_gpio_cfg_output(14);                      // unused
   nrf_gpio_cfg_output(15);                      // unused
   nrf_gpio_cfg_output(16);                      // unused
-  // SPI SEL
+  nrf_gpio_cfg_output(SEL);                     // SPI SEL
   nrf_gpio_cfg_output(18);                      // unused
-  // SPI SCK
+  nrf_gpio_cfg_output(SCK);                     // SPI SCK
   nrf_gpio_cfg_output(20);                      // unused
-  // SPI MISO
+  nrf_gpio_cfg_input(MISO,NRF_GPIO_PIN_NOPULL); // SPI MISO
+  
   nrf_gpio_cfg_output(22);                      // unused
-  // SPI MOSI
+  nrf_gpio_cfg_output(MOSI);                     // SPI MOSI
   nrf_gpio_cfg_output(BAT_LVL_ON);
   nrf_gpio_cfg_output(25);                      // unused
   nrf_gpio_cfg_output(26);                      // unused

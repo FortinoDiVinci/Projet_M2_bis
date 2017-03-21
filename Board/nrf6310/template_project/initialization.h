@@ -40,10 +40,10 @@
 #define BAT_LVL                 4 // Analog pin 5
 #define INT1_MEMS               5
 #define VIB                     6
-#define SEL                     17
-#define SCK                     19
-#define MISO                    21
-#define MOSI                    23
+#define SEL                    17
+#define SCK                    19
+#define MISO                   21
+#define MOSI                   23
 #define BAT_LVL_ON              24
 
 /************************

@@ -2342,7 +2342,13 @@
     <name>$PROJ_DIR$\..\..\..\..\Source\spi_master\spi_master.c</name>
   </file>
   <file>
+    <name>$PROJ_DIR$\..\..\..\..\Include\spi_master.h</name>
+  </file>
+  <file>
     <name>$PROJ_DIR$\..\spi_master_config.h</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\..\..\..\..\Source\spi_master\spi_master_config.h</name>
   </file>
   <file>
     <name>$PROJ_DIR$\..\..\..\..\Source\templates\system_nrf51.c</name>
