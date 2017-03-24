@@ -104,7 +104,7 @@ int main(void)
   NRF_POWER->TASKS_LOWPWR = 1;
    
   // Enable GPIOTE interrupt in Nested Vector Interrupt Controller
-  ////////NVIC_EnableIRQ(GPIOTE_IRQn);
+  //////NVIC_EnableIRQ(GPIOTE_IRQn);
     
   /************************
   *       MAIN LOOP       *
@@ -115,37 +115,29 @@ int main(void)
   
   NRF_TIMER2->TASKS_START = 1;
   NVIC_EnableIRQ(TIMER2_IRQn);
-  //IMU_ON();
+  IMU_ON();
 
-  write_data(0x3F,0X10);
-  write_data(0xA4,0x17);
-  write_data(0x10,0X58);
-  
-  while(1)
-  {
-    __WFI();
-  }
+//  write_data(0x3F,0X10);
+//  write_data(0xA4,0x17);
+//  write_data(0x10,0X58);
   
   
   while (true)
   {
     if (start == 0)
     {
-        #ifdef UART
-        uart_putstring("Going to sleep\r\n");
-        #endif
-        /* SHUTTING DOWN TIMER 1 & 2 */
+        /* SHUTTING DOWN TIMER 0, 1 & 2 */
         
-        NRF_TIMER2->TASKS_STOP = 1;
+        //NRF_TIMER2->TASKS_STOP = 1;
         NRF_TIMER2->TASKS_SHUTDOWN = 1;
         NVIC_DisableIRQ(TIMER2_IRQn);
         
-        NRF_TIMER1->TASKS_STOP = 1;
+        //NRF_TIMER1->TASKS_STOP = 1;
         NRF_TIMER1->TASKS_SHUTDOWN = 1;
         NVIC_DisableIRQ(TIMER1_IRQn);
         
           //disable low battery
-        NRF_TIMER0->TASKS_STOP = 1;
+        //NRF_TIMER0->TASKS_STOP = 1;
         NRF_TIMER0->TASKS_SHUTDOWN = 1;
         NVIC_DisableIRQ(TIMER0_IRQn); 
         
@@ -186,11 +178,7 @@ int main(void)
         /* SLEEP */
         nrf_gpio_pin_set(BUCK_ON);
         __WFI();     
-        nrf_gpio_pin_clear(BUCK_ON);
-        #ifdef UART  
-        uart_putstring("read_acc_value = 1\r\n");
-        #endif
-          
+        nrf_gpio_pin_clear(BUCK_ON);   
       }
      }   
    }
@@ -204,9 +192,6 @@ int main(void)
 
 void GPIOTE_IRQHandler(void)
 {
-  #ifdef UART
-  uart_putstring("Inside GPIOTE_IRQHandler\r\n");
-  #endif
   start = 1;
   
   nrf_gpio_pin_clear(BUCK_ON);
@@ -227,13 +212,6 @@ void TIMER1_IRQHandler(void)
   
   if ((NRF_GPIO->IN&0x00000040)==(0x00000000))
   {
-    #ifdef UART
-    uart_putstring("sleep_count = ");
-    #endif
-//    itoac(sleep_count, 0);
-    #ifdef UART
-    uart_putstring("\r\n");
-    #endif
     sleep_count ++; 
   }
   else

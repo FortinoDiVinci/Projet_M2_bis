@@ -156,23 +156,25 @@ bool spi_master_tx_rx(uint32_t *spi_base_address, uint16_t transfer_size, const 
 
 void init_IMU(void)
 {
-  write_data(0x34,0X10);  // set accelrometre (get mesure : 52 hz; scall:+-16g filter :50hz)
+  //write_data(0x34,0X10);  // set accelrometre (get mesure : 52 hz; scall:+-16g filter :50hz)
   //write_data(0x33,0x10);     // set accelerometre (get mesure: 52hz scall:+-2g filter :50hz)
-  write_data(0x10,0x15);  // disable high-performance mode for accelerometre
-  write_data(0x80,0x16);
+  //write_data(0x10,0x15);  // disable high-performance mode for accelerometre
+  write_data(0x00,0x10);  // disable accelerometre
+  write_data(0x80,0x16); // disable high-performance mode for gyr
   
 }
 
 void IMU_OFF(void)
 {
-  write_data(0x00,0x10);  // disable accelerometre
-  write_data(0x00,0x11);  // disable gyroscope
+ //write_data(0x00,0x10);  // disable accelerometre
+ write_data(0x00,0x11);  // disable gyroscope
 }
 
 void IMU_ON(void)
 {
-  write_data(0x34,0x10);  // disable accelerometre
-  write_data(0x30,0x11);  // disable gyroscope
+  //write_data(0x34,0x10);  // enable accelerometre
+  write_data(0x34,0x11);  // enable gyroscope
+  write_data(0x80,0x16); // disable high-performance mode for gyr
 }
 
 bool write_data(uint8_t data, uint8_t adress )
@@ -228,7 +230,7 @@ bool read_ac_value(int16_t* x_acceleration,int16_t* y_acceleration,int16_t* z_ac
   {
     return false;
   }
-  tx_data[0] = 0xA8;
+  tx_data[0] = 0xA2;
   tx_data[1] = 0;
   if(!spi_master_tx_rx(spi_base_address, 7 , (const uint8_t *)tx_data, rx_data) )
     return false;

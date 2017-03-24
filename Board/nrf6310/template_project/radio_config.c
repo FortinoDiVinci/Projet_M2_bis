@@ -149,7 +149,9 @@ void rf_send(uint8_t *packet)
   {
   }
   
-  nrf_gpio_pin_toggle(2);
+  NRF_CLOCK->TASKS_HFCLKSTOP = 1;
+  
+  //nrf_gpio_pin_toggle(2);
   
    // Diseable buck
 //  nrf_gpio_pin_set(BUCK_ON);

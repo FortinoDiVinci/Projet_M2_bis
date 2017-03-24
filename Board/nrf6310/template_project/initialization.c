@@ -57,7 +57,6 @@
   nrf_gpio_cfg_output(SCK);                     // SPI SCK
   nrf_gpio_cfg_output(20);                      // unused
   nrf_gpio_cfg_input(MISO,NRF_GPIO_PIN_NOPULL); // SPI MISO
-  
   nrf_gpio_cfg_output(22);                      // unused
   nrf_gpio_cfg_output(MOSI);                     // SPI MOSI
   nrf_gpio_cfg_output(BAT_LVL_ON);
