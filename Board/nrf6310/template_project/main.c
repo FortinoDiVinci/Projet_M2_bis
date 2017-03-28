@@ -148,11 +148,13 @@ int main(void)
         NVIC_EnableIRQ(GPIOTE_IRQn);
         
         //NRF_POWER->SYSTEMOFF=POWER_SYSTEMOFF_SYSTEMOFF_Enter<<POWER_SYSTEMOFF_SYSTEMOFF_Pos;
-        /* SLEEP */
         
+        /* SLEEP */
+        IMU_OFF();
         nrf_gpio_pin_set(BUCK_ON);
         __WFI();
-        nrf_gpio_pin_clear(BUCK_ON);       
+        nrf_gpio_pin_clear(BUCK_ON);
+        IMU_ON();
     }
     else
     {
@@ -178,7 +180,7 @@ int main(void)
         /* SLEEP */
         nrf_gpio_pin_set(BUCK_ON);
         __WFI();     
-        nrf_gpio_pin_clear(BUCK_ON);   
+        nrf_gpio_pin_clear(BUCK_ON);
       }
      }   
    }
