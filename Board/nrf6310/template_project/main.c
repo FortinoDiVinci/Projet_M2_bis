@@ -141,9 +141,6 @@ int main(void)
         NRF_TIMER0->TASKS_SHUTDOWN = 1;
         NVIC_DisableIRQ(TIMER0_IRQn); 
         
-//        //disable buck
-//        nrf_gpio_pin_set(BUCK_ON);
-        
         /* REACTIVATING PORT EVENT DETECTION */
         NVIC_EnableIRQ(GPIOTE_IRQn);
         
@@ -151,9 +148,7 @@ int main(void)
         
         /* SLEEP */
         IMU_OFF();
-        nrf_gpio_pin_set(BUCK_ON);
         __WFI();
-        nrf_gpio_pin_clear(BUCK_ON);
         IMU_ON();
     }
     else
@@ -178,9 +173,7 @@ int main(void)
       while( /* read_acc_value == 1)*/ start == 1) 
       {
         /* SLEEP */
-        nrf_gpio_pin_set(BUCK_ON);
         __WFI();     
-        nrf_gpio_pin_clear(BUCK_ON);
       }
      }   
    }
@@ -313,9 +306,6 @@ void TIMER2_IRQHandler(void)
     y_acc = y_acceleration/MAX_LENGTH_SAMPLE;
     z_acc = z_acceleration/MAX_LENGTH_SAMPLE;
     sample_count = 1;
-    #ifdef UART
-    uart_putstring("sending data\r\n");
-    #endif
     data_to_send[0] = 0x07;      // Set Length to 6 bytes
     data_to_send[1] = 0xFF;     // Write 1's to S1, for debug purposes
     data_to_send[2] = 0xFF;
